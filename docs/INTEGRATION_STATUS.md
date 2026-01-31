@@ -6,19 +6,19 @@
 
 ## Executive Summary
 
-The backend (`balados.sync`) has a complete API for synchronization. The frontend (`balados.app`) has a sync client implementation on the `feature/sync` branch but lacks the UI and conflict resolution components to complete the integration.
+The backend (`balados.sync`) has a complete API for synchronization including the health endpoint. The frontend (`balados.app`) now has full sync implementation on the `feature/sync` branch including the sync client, settings UI, conflict resolution, and React hook.
 
-**Overall Progress: ~60%**
+**Overall Progress: ~85%**
 
 ---
 
 ## Component Status Matrix
 
-### Backend (balados.sync) - 🟡 95% Ready
+### Backend (balados.sync) - ✅ 100% Ready
 
 | Component | Endpoint | Status | Notes |
 |-----------|----------|--------|-------|
-| Health Check | `GET /api/v1/health` | ❌ Missing | Frontend expects this |
+| Health Check | `GET /api/v1/health` | ✅ Ready | Returns `{ ok: true, version: "..." }` |
 | Full Sync | `POST /api/v1/sync` | ✅ Ready | Bidirectional merge |
 | Subscriptions List | `GET /api/v1/subscriptions` | ✅ Ready | |
 | Subscribe | `POST /api/v1/subscriptions` | ✅ Ready | |
@@ -34,7 +34,7 @@ The backend (`balados.sync`) has a complete API for synchronization. The fronten
 | Privacy API | `/api/v1/privacy` | ✅ Ready | Per-feed settings |
 | JWT Auth | OAuth flow | ✅ Ready | RS256, scopes |
 
-### Frontend (balados.app) - 🟡 40% Complete
+### Frontend (balados.app) - 🟡 85% Complete
 
 | Component | File | Status | Notes |
 |-----------|------|--------|-------|
@@ -43,12 +43,12 @@ The backend (`balados.sync`) has a complete API for synchronization. The fronten
 | Encoding Helpers | `sync/client.ts` | ✅ Complete | On feature/sync |
 | Type Converters | `sync/client.ts` | ✅ Complete | On feature/sync |
 | Client Tests | `sync/client.test.ts` | ✅ Complete | 29 tests |
-| Sync Settings UI | `settings/SyncSettings.tsx` | ❌ Missing | Issue #13 |
-| Conflict Resolver | `sync/merger.ts` | ❌ Missing | Issue #14 |
-| useSync Hook | `hooks/useSync.ts` | ❌ Missing | Issue #14 |
+| Sync Settings UI | `settings/SyncSettings.tsx` | ✅ Complete | Issue #23 |
+| Conflict Resolver | `sync/merger.ts` | ✅ Complete | Issue #24, 22 tests |
+| useSync Hook | `hooks/useSync.ts` | ✅ Complete | Issue #25 |
 | Proxy Integration | `rss/proxyManager.ts` | ❌ Missing | Use server proxy |
-| OAuth Flow Handler | - | ❌ Missing | Issue #13 |
-| Sync Status Indicator | - | ❌ Missing | Issue #13 |
+| OAuth Flow Handler | `SyncSettings.tsx` | ✅ Complete | Popup + manual token |
+| Sync Status Indicator | - | ❌ Missing | Nice to have |
 
 ---
 
@@ -100,7 +100,7 @@ Frontend                                    Backend
                        playlists }            6. Return merged state
    ◄──────────────────────────────────────── { subscriptions, play_statuses,
                                                 playlists, synced_at }
-7. Apply remote changes locally
+7. Apply remote changes locally (merger.ts)
 8. Update lastSync timestamp
 ```
 
@@ -108,22 +108,12 @@ Frontend                                    Backend
 
 ## Known Issues & Gaps
 
-### Critical (Must Fix)
+### Resolved ✅
 
-1. **No OAuth Flow Handler**
-   - Frontend cannot obtain JWT tokens
-   - Need to handle redirect from server's `/authorize` page
-   - Store tokens securely in IndexedDB
-
-2. **No Sync UI**
-   - Users cannot connect to a server
-   - No visual feedback for sync status
-   - No error display for sync failures
-
-3. **No Conflict Resolution**
-   - `merger.ts` not implemented
-   - Can't handle concurrent edits
-   - Position conflicts need "higher wins" logic
+1. ~~**No OAuth Flow Handler**~~ → Implemented in SyncSettings.tsx
+2. ~~**No Sync UI**~~ → SyncSettings.tsx with status, connect/disconnect
+3. ~~**No Conflict Resolution**~~ → merger.ts with full test coverage
+4. ~~**No Health Endpoint**~~ → Backend now has `/api/v1/health`
 
 ### Important (Should Fix)
 
@@ -149,13 +139,17 @@ Frontend                                    Backend
    - WebSocket endpoint exists on backend
    - Frontend doesn't connect to it
 
+9. **No Sync Status Indicator**
+   - Would be nice in app header
+   - Shows connected/syncing/pending status
+
 ---
 
 ## API Compatibility Checklist
 
 | Feature | Frontend Expects | Backend Provides | Match |
 |---------|------------------|------------------|-------|
-| Health check | `GET /api/v1/health` | ❌ Not implemented | ⚠️ |
+| Health check | `GET /api/v1/health` | `GET /api/v1/health` | ✅ |
 | Sync | `POST /api/v1/sync` | `POST /api/v1/sync` | ✅ |
 | Subscriptions | `GET/POST/DELETE /api/v1/subscriptions` | Same | ✅ |
 | Play status | `POST /api/v1/play` | `POST /api/v1/play` | ✅ |
@@ -167,11 +161,10 @@ Frontend                                    Backend
 | Episode encoding | `btoa(guid,enclosureUrl)` | Same | ✅ |
 | Timestamps | ISO 8601 | ISO 8601 | ✅ |
 
-### Backend Gaps to Fix
+### Remaining Backend Gaps
 
-1. **`GET /api/v1/health`** - Simple endpoint returning `{ "ok": true }`
-2. **`GET /api/v1/play/{feed}/{item}`** - Get specific episode play status (or adjust frontend)
-3. **`POST /api/v1/auth/refresh`** - Token refresh endpoint (or remove from frontend)
+1. **`GET /api/v1/play/{feed}/{item}`** - Get specific episode play status (or adjust frontend)
+2. **`POST /api/v1/auth/refresh`** - Token refresh endpoint (or remove from frontend)
 
 ---
 
@@ -210,65 +203,72 @@ Frontend                                    Backend
 
 ---
 
-## Next Steps
+## Completed Implementation
 
-### Phase 1: Complete Core Sync (Issue #13, #14)
+### Frontend Files Created (feature/sync branch)
 
-1. **Create SyncSettings.tsx**
-   - Server URL input
-   - Connect/disconnect buttons
-   - Sync status display
-   - Last sync timestamp
+```
+src/
+├── components/
+│   └── settings/
+│       └── SyncSettings.tsx      # ✅ Sync connection UI
+├── hooks/
+│   └── useSync.ts                # ✅ React hook for sync
+└── services/
+    └── sync/
+        ├── client.ts             # ✅ API client (existing)
+        ├── client.test.ts        # ✅ 29 tests
+        ├── merger.ts             # ✅ Conflict resolution
+        └── merger.test.ts        # ✅ 22 tests
+```
 
-2. **Implement OAuth callback**
-   - Handle redirect from `/authorize`
-   - Store JWT token
-   - Trigger initial sync
+### Files Modified (feature/sync branch)
 
-3. **Create merger.ts**
-   - Last-write-wins logic
-   - Position conflict resolution
-   - Soft delete handling
-
-4. **Create useSync.ts hook**
-   - Expose sync status
-   - Manual sync trigger
-   - Auto-sync on interval
-
-### Phase 2: Polish (Future)
-
-5. **Integrate with proxyManager**
-6. **Add Service Worker background sync**
-7. **Implement WebSocket real-time sync**
-8. **Add playlist sync**
+```
+src/
+├── components/
+│   └── settings/
+│       └── Settings.tsx          # ✅ Added SyncSettings section
+├── services/
+│   └── i18n/
+│       └── locales/
+│           ├── en.json           # ✅ Added syncSettings translations
+│           └── fr.json           # ✅ Added syncSettings translations
+└── types/
+    └── index.ts                  # ✅ Added lastSyncAt to AppSettings
+```
 
 ---
 
-## Files to Create/Modify
+## Next Steps
 
-### New Files (Frontend)
+### Phase 1: Complete Core Sync ✅
 
-```
-src/
-├── components/
-│   └── settings/
-│       └── SyncSettings.tsx      # Sync connection UI
-├── hooks/
-│   └── useSync.ts                # React hook for sync
-└── services/
-    └── sync/
-        └── merger.ts             # Conflict resolution
-```
+1. ~~**Create SyncSettings.tsx**~~ → Done
+2. ~~**Implement OAuth callback**~~ → Done
+3. ~~**Create merger.ts**~~ → Done
+4. ~~**Create useSync.ts hook**~~ → Done
 
-### Files to Modify (Frontend)
+### Phase 2: Polish (Future)
 
-```
-src/
-├── components/
-│   └── settings/
-│       └── Settings.tsx          # Add SyncSettings section
-├── services/
-│   └── rss/
-│       └── proxyManager.ts       # Use server proxy when connected
-└── App.tsx                       # Add sync status indicator
-```
+5. **Integrate with proxyManager** - Use server proxy when connected
+6. **Add Service Worker background sync** - Process queue periodically
+7. **Implement WebSocket real-time sync** - Live updates
+8. **Add playlist sync** - Full CRUD
+9. **Add sync status indicator** - App header icon
+
+---
+
+## PR Status
+
+| PR | Title | Branch | Status |
+|----|-------|--------|--------|
+| #22 | feat(sync): add balados.sync API client | feature/sync | Open |
+
+The feature/sync branch now contains:
+- Sync client API (PR #22 original)
+- SyncSettings UI (Closes #23)
+- Conflict resolution merger (Closes #24)
+- useSync React hook (Closes #25)
+
+Once PR #22 is merged, all sync functionality will be on main.
