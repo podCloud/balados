@@ -1,6 +1,9 @@
 # Private keys - NEVER commit
 balados.sync_keys.md
 
+# Claude local settings
+.claude/settings.local.json
+
 # OS files
 .DS_Store
 Thumbs.db

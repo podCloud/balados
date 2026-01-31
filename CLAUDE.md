@@ -216,6 +216,35 @@ See individual CLAUDE.md files for project-specific rules.
 
 ---
 
+## Current Work - Integration Roadmap
+
+### Open Issues to Complete Integration
+
+**Backend (balados.sync):**
+- [#202](https://github.com/podCloud/balados.sync/issues/202) - Add `/api/v1/health` endpoint
+- [#203](https://github.com/podCloud/balados.sync/issues/203) - Add `/api/v1/auth/refresh` endpoint
+
+**Frontend (balados.app):**
+- [#23](https://github.com/podCloud/balados.app/issues/23) - Sync Settings UI component
+- [#24](https://github.com/podCloud/balados.app/issues/24) - Conflict resolution merger
+- [#25](https://github.com/podCloud/balados.app/issues/25) - useSync React hook
+
+### Priority Order
+
+1. **Backend #202** (health endpoint) - Quick win, unblocks frontend testing
+2. **Frontend #23** (SyncSettings UI) - Core user-facing feature
+3. **Frontend #24** (merger) - Required for sync logic
+4. **Frontend #25** (useSync hook) - Ties everything together
+5. **Backend #203** (auth refresh) - Nice to have, can work without
+
+### Sync Feature Branch
+
+The frontend sync client is on `feature/sync` branch (PR #22). Work on issues #23-25 should be done on that branch or merged after it.
+
+See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
+
+---
+
 ## Documentation Index
 
 ### balados.app
