@@ -14,11 +14,11 @@ The backend (`balados.sync`) has a complete API for synchronization. The fronten
 
 ## Component Status Matrix
 
-### Backend (balados.sync) - ✅ 100% Ready
+### Backend (balados.sync) - 🟡 95% Ready
 
 | Component | Endpoint | Status | Notes |
 |-----------|----------|--------|-------|
-| Health Check | `GET /api/v1/health` | ✅ Ready | |
+| Health Check | `GET /api/v1/health` | ❌ Missing | Frontend expects this |
 | Full Sync | `POST /api/v1/sync` | ✅ Ready | Bidirectional merge |
 | Subscriptions List | `GET /api/v1/subscriptions` | ✅ Ready | |
 | Subscribe | `POST /api/v1/subscriptions` | ✅ Ready | |
@@ -155,16 +155,23 @@ Frontend                                    Backend
 
 | Feature | Frontend Expects | Backend Provides | Match |
 |---------|------------------|------------------|-------|
-| Health check | `GET /api/v1/health` | `GET /api/v1/health` | ✅ |
+| Health check | `GET /api/v1/health` | ❌ Not implemented | ⚠️ |
 | Sync | `POST /api/v1/sync` | `POST /api/v1/sync` | ✅ |
 | Subscriptions | `GET/POST/DELETE /api/v1/subscriptions` | Same | ✅ |
 | Play status | `POST /api/v1/play` | `POST /api/v1/play` | ✅ |
+| Get play status | `GET /api/v1/play/{feed}/{item}` | `GET /api/v1/play` (list only) | ⚠️ |
 | RSS proxy | `GET /api/v1/rss/proxy/{feed}` | Same | ✅ |
 | Trending | `GET /api/v1/public/trending/podcasts` | Same | ✅ |
 | Token refresh | `POST /api/v1/auth/refresh` | ❌ Not implemented | ⚠️ |
 | Base64 encoding | `btoa(feedUrl)` | Same | ✅ |
 | Episode encoding | `btoa(guid,enclosureUrl)` | Same | ✅ |
 | Timestamps | ISO 8601 | ISO 8601 | ✅ |
+
+### Backend Gaps to Fix
+
+1. **`GET /api/v1/health`** - Simple endpoint returning `{ "ok": true }`
+2. **`GET /api/v1/play/{feed}/{item}`** - Get specific episode play status (or adjust frontend)
+3. **`POST /api/v1/auth/refresh`** - Token refresh endpoint (or remove from frontend)
 
 ---
 
