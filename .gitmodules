@@ -1,0 +1,6 @@
+[submodule "balados.app"]
+	path = balados.app
+	url = git@github.com:podCloud/balados.app.git
+[submodule "balados.sync"]
+	path = balados.sync
+	url = git@github.com:podCloud/balados.sync.git
