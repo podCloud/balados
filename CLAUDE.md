@@ -211,6 +211,9 @@ Both projects require:
 - PR reviews before merge
 - Conventional commits
 - Author: `--author="Claude <noreply@anthropic.com>"`
+- **NEVER merge without a review that explicitly approves AFTER all commits are pushed**
+  - If you push new commits after a review, wait for a new review before merging
+  - The review must explicitly say it's OK to merge
 
 See individual CLAUDE.md files for project-specific rules.
 
