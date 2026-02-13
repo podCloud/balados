@@ -224,7 +224,7 @@ Both projects require:
 - **No human review required.** The CI bot review (Claude Code Review workflow) is sufficient.
   - If the bot review flags critical/must-fix/should-fix issues: **fix them first**, then merge
   - If the bot review approves (no blocking issues): **merge directly**
-  - After pushing fix commits, wait for the new bot review before merging
+  - After pushing fix commits, **re-trigger the bot review by removing and re-adding the review label** on the PR, then wait for the new review before merging
 - **Follow-up issues**: When the bot review suggests nice-to-have or optional improvements, create follow-up issues for them.
   - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up)
 
