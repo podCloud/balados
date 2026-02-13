@@ -113,13 +113,17 @@ https://{server}/api/v1/
 
 ### Data Encoding Convention
 
+All encoding uses **URL-safe base64** (RFC 4648 §5: `-` instead of `+`, `_` instead of `/`, no `=` padding). Shared functions in `balados.app/src/utils/rssEncoding.ts`.
+
 ```typescript
-// Feed URL → base64
-const rssFeed = btoa(feedUrl)
+import { encodeRssFeed, encodeRssItem } from "./utils/rssEncoding";
+
+// Feed URL → base64url
+const rssFeed = encodeRssFeed(feedUrl)
 // Example: "https://example.com/feed.xml" → "aHR0cHM6Ly9..."
 
-// Episode ID → base64(guid,enclosureUrl)
-const rssItem = btoa(`${guid},${enclosureUrl}`)
+// Episode ID → base64url(guid,enclosureUrl)
+const rssItem = encodeRssItem(guid, enclosureUrl)
 // IMPORTANT: Decode with lastIndexOf(",") because guid may contain commas
 ```
 
@@ -150,15 +154,15 @@ JWT Bearer tokens (RS256 asymmetric). OAuth-style flow:
 ```typescript
 // Subscription
 interface SubscriptionSync {
-  rss_source_feed: string;     // base64(feedUrl)
+  rss_source_feed: string;     // base64url(feedUrl)
   subscribed_at: string;       // ISO date
   unsubscribed_at?: string;    // ISO date (if unsubscribed)
 }
 
 // Play Status
 interface PlayStatusSync {
-  rss_source_feed: string;     // base64(feedUrl)
-  rss_source_item: string;     // base64(guid,enclosureUrl)
+  rss_source_feed: string;     // base64url(feedUrl)
+  rss_source_item: string;     // base64url(guid,enclosureUrl)
   position: number;            // seconds
   played: boolean;             // completed
   updated_at: string;          // ISO date
@@ -197,7 +201,8 @@ Last-write-wins with timestamps. Special cases:
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| Proxy manager integration | Update `proxyManager.ts` | Not started |
+| Proxy manager integration | `balados.app/src/services/rss/proxyManager.ts` | ✅ Complete (PR #34) |
+| RSS encoding util | `balados.app/src/utils/rssEncoding.ts` | ✅ Complete (PR #34) |
 | Background sync (SW) | Service Worker sync | Not started |
 | Sync status indicator | App header icon | Not started |
 | Trending page UI | `src/components/` (Issue #16) | Not started |
@@ -243,6 +248,7 @@ See individual CLAUDE.md files for project-specific rules.
 - ✅ Local stats page with event logging (#15, PR #28)
 - ✅ Event snapshot system for bounded storage (#30, PR #31)
 - ✅ "In Progress" page for partially listened episodes (#29, PR #32)
+- ✅ Sync server CORS proxy in ProxyManager + URL-safe base64 encoding (#33, PR #34)
 
 ### Open Work
 
