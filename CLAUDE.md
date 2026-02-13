@@ -218,6 +218,7 @@ Test RSA keypair for local development is in `balados.sync_keys.md`.
 ## Git Workflow
 
 Both projects require:
+- **Never commit code changes directly to main.** Always use feature branches, even for fixes. Only tooling config and documentation changes go directly on main.
 - Feature branches: `feature/issue-<number>-<slug>`
 - Conventional commits
 - Author: `--author="Claude <noreply@anthropic.com>"`
