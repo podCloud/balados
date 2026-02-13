@@ -219,12 +219,14 @@ Test RSA keypair for local development is in `balados.sync_keys.md`.
 
 Both projects require:
 - Feature branches: `feature/issue-<number>-<slug>`
-- PR reviews before merge
 - Conventional commits
 - Author: `--author="Claude <noreply@anthropic.com>"`
-- **NEVER merge without a review that explicitly approves AFTER all commits are pushed**
-  - If you push new commits after a review, wait for a new review before merging
-  - The review must explicitly say it's OK to merge
+- **No human review required.** The CI bot review (Claude Code Review workflow) is sufficient.
+  - If the bot review flags critical/must-fix/should-fix issues: **fix them first**, then merge
+  - If the bot review approves (no blocking issues): **merge directly**
+  - After pushing fix commits, wait for the new bot review before merging
+- **Follow-up issues**: When the bot review suggests nice-to-have or optional improvements, create follow-up issues for them.
+  - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up)
 
 See individual CLAUDE.md files for project-specific rules.
 
