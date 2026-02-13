@@ -1,6 +1,6 @@
 # Balados Ecosystem Architecture
 
-**Last updated:** 2026-01-31
+**Last updated:** 2026-02-12
 
 ---
 
@@ -102,8 +102,10 @@ App.tsx
 │       │   ├── PlayerControls
 │       │   └── MiniPlayer
 │       ├── Explorer
+│       ├── InProgress
+│       ├── Stats
 │       ├── Settings
-│       │   ├── SyncSettings (TODO)
+│       │   ├── SyncSettings
 │       │   └── StorageSettings
 │       └── Debug
 ```
@@ -317,6 +319,8 @@ PostgreSQL Instance
 │   └── /{id}                 # GET, PATCH, DELETE
 │       └── /feeds            # POST - Add feed
 ├── privacy                   # GET, PUT - Settings
+├── auth/
+│   └── refresh               # POST - Token validation/refresh
 ├── rss/
 │   └── proxy/{feed}          # GET - CORS proxy
 └── public/

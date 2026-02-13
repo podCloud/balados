@@ -1,6 +1,6 @@
 # Integration Roadmap - Balados Ecosystem
 
-**Last updated:** 2026-01-31
+**Last updated:** 2026-02-12
 
 ---
 
@@ -10,35 +10,26 @@ This roadmap covers completing the integration between `balados.app` (frontend) 
 
 ### Current State
 
-- **Backend**: Production-ready API with full CQRS/ES architecture
-- **Frontend**: Sync client implemented, awaiting UI and integration
+- **Backend**: Production-ready API with full CQRS/ES architecture, all sync endpoints complete
+- **Frontend**: Phase 1 complete (sync client, settings UI, merger, useSync hook all merged to main). Additional features shipped: local stats, event snapshots, in-progress page.
 
 ---
 
-## Phase 1: Core Integration (Priority: Critical)
+## Phase 1: Core Integration (Priority: Critical) - ✅ COMPLETE
 
 **Goal:** Users can connect to a sync server and sync their data.
 
-### 1.1 OAuth Flow Handler
+All Phase 1 items have been implemented and merged to main.
 
-**Status:** Not started
-**Effort:** Medium
-**Files:** `balados.app/src/services/sync/oauth.ts`
+### 1.1 OAuth Flow Handler - ✅ Done
 
-- Handle redirect from server's `/authorize` page
-- Extract and validate JWT token from callback
-- Store token securely in IndexedDB
-- Handle token expiration and refresh
+**Files:** `balados.app/src/components/settings/SyncSettings.tsx`
 
-**Acceptance Criteria:**
-- [ ] User can click "Connect" and be redirected to server
-- [ ] Token is stored after successful auth
-- [ ] Invalid/expired tokens are handled gracefully
+- Popup + manual token OAuth flow
+- Token stored securely in IndexedDB
 
-### 1.2 Sync Settings UI
+### 1.2 Sync Settings UI - ✅ Done (Issue #23, PR #22)
 
-**Status:** Not started (Issue #13)
-**Effort:** Medium
 **Files:** `balados.app/src/components/settings/SyncSettings.tsx`
 
 - Server URL input with validation
@@ -46,83 +37,27 @@ This roadmap covers completing the integration between `balados.app` (frontend) 
 - Connection status indicator
 - Last sync timestamp
 - "Sync Now" manual trigger
-- Auto-sync toggle with interval selector
 
-**UI Mockup:**
-```
-┌─────────────────────────────────────────┐
-│ Synchronisation                         │
-├─────────────────────────────────────────┤
-│ Statut: ● Connecté                      │
-│ Serveur: sync.balados.app               │
-│ Dernier sync: Il y a 5 minutes          │
-│                                         │
-│ [Synchroniser maintenant]               │
-│                                         │
-│ ☑ Sync automatique                      │
-│ Intervalle: [15 minutes ▼]              │
-│                                         │
-│ [Déconnecter]                           │
-├─────────────────────────────────────────┤
-│ [Se connecter à un autre serveur]       │
-└─────────────────────────────────────────┘
-```
+### 1.3 Conflict Resolution Logic - ✅ Done (Issue #24, PR #22)
 
-**Acceptance Criteria:**
-- [ ] Settings page shows sync section
-- [ ] Can enter server URL and connect
-- [ ] Status updates in real-time
-- [ ] Can disconnect without losing data
+**Files:** `balados.app/src/services/sync/merger.ts` (22 tests)
 
-### 1.3 Conflict Resolution Logic
+- Last-write-wins with timestamps
+- Higher position wins for play positions
+- Soft delete preservation
 
-**Status:** Not started (Issue #14)
-**Effort:** Medium
-**Files:** `balados.app/src/services/sync/merger.ts`
+### 1.4 useSync Hook - ✅ Done (Issue #25, PR #22)
 
-- Implement last-write-wins with timestamps
-- Special handling for play positions (higher wins)
-- Soft delete preservation (45-day window)
-- Merge subscriptions by feed URL
-- Merge playlists by ID
-
-**Algorithm:**
-```typescript
-function merge(local: SyncData, remote: SyncData): SyncData {
-  // Subscriptions: newer timestamp wins
-  // Play status: higher position OR newer timestamp
-  // Playlists: merge items, newer metadata wins
-}
-```
-
-**Acceptance Criteria:**
-- [ ] Local changes preserved when newer
-- [ ] Remote changes applied when newer
-- [ ] Position conflicts use higher value
-- [ ] No data loss in any scenario
-
-### 1.4 useSync Hook
-
-**Status:** Not started (Issue #14)
-**Effort:** Small
 **Files:** `balados.app/src/hooks/useSync.ts`
 
-```typescript
-interface UseSyncReturn {
-  status: 'disconnected' | 'connected' | 'syncing' | 'error';
-  lastSyncAt: Date | null;
-  pendingCount: number;
-  error: string | null;
-  sync: () => Promise<void>;
-  connect: (serverUrl: string) => Promise<void>;
-  disconnect: () => Promise<void>;
-}
-```
+- Components can access sync status
+- Manual sync triggerable
+- Error states exposed
 
-**Acceptance Criteria:**
-- [ ] Components can access sync status
-- [ ] Manual sync triggerable
-- [ ] Error states exposed
+### 1.5 Backend Endpoints - ✅ Done
+
+- Health endpoint (Issue #202, PR #204)
+- Auth refresh endpoint (Issue #203, PR #205)
 
 ---
 
@@ -290,7 +225,7 @@ Visual indicator in app header/navigation:
 - [x] Dexie.js for IndexedDB
 - [x] TanStack Query
 - [x] Service Worker setup
-- [ ] Merge feature/sync branch
+- [x] Merge feature/sync branch (PR #22 merged)
 
 ### Backend Requirements
 - [x] All sync endpoints

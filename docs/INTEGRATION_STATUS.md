@@ -1,14 +1,15 @@
 # Integration Status - balados.app ↔ balados.sync
 
-**Last updated:** 2026-01-31
+**Last updated:** 2026-02-12
 
 ---
 
 ## Executive Summary
 
-The backend (`balados.sync`) has a complete API for synchronization including the health endpoint. The frontend (`balados.app`) now has full sync implementation on the `feature/sync` branch including the sync client, settings UI, conflict resolution, and React hook.
+The backend (`balados.sync`) has a complete API for synchronization including health, auth/refresh, sync, subscriptions, play, RSS proxy, and trending endpoints. The frontend (`balados.app`) has full Phase 1 sync implementation **merged to main** including the sync client, settings UI, conflict resolution, and React hook. Additional features (local stats, event snapshots, in-progress page) have also been shipped.
 
-**Overall Progress: ~85%**
+**Phase 1 (Core Sync): ✅ Complete**
+**Overall Progress: ~90%** (Phase 2 polish items remaining)
 
 ---
 
@@ -34,21 +35,24 @@ The backend (`balados.sync`) has a complete API for synchronization including th
 | Privacy API | `/api/v1/privacy` | ✅ Ready | Per-feed settings |
 | JWT Auth | OAuth flow | ✅ Ready | RS256, scopes |
 
-### Frontend (balados.app) - 🟡 85% Complete
+### Frontend (balados.app) - 🟢 Phase 1 Complete (on main)
 
 | Component | File | Status | Notes |
 |-----------|------|--------|-------|
-| Offline Queue | `storage/syncQueue.ts` | ✅ Complete | On main branch |
-| Sync Client | `sync/client.ts` | ✅ Complete | On feature/sync |
-| Encoding Helpers | `sync/client.ts` | ✅ Complete | On feature/sync |
-| Type Converters | `sync/client.ts` | ✅ Complete | On feature/sync |
+| Offline Queue | `storage/syncQueue.ts` | ✅ Complete | Merged to main |
+| Sync Client | `sync/client.ts` | ✅ Complete | Merged (PR #22) |
+| Encoding Helpers | `sync/client.ts` | ✅ Complete | Merged (PR #22) |
+| Type Converters | `sync/client.ts` | ✅ Complete | Merged (PR #22) |
 | Client Tests | `sync/client.test.ts` | ✅ Complete | 29 tests |
-| Sync Settings UI | `settings/SyncSettings.tsx` | ✅ Complete | Issue #23 |
-| Conflict Resolver | `sync/merger.ts` | ✅ Complete | Issue #24, 22 tests |
-| useSync Hook | `hooks/useSync.ts` | ✅ Complete | Issue #25 |
-| Proxy Integration | `rss/proxyManager.ts` | ❌ Missing | Use server proxy |
+| Sync Settings UI | `settings/SyncSettings.tsx` | ✅ Complete | Issue #23, merged |
+| Conflict Resolver | `sync/merger.ts` | ✅ Complete | Issue #24, 22 tests, merged |
+| useSync Hook | `hooks/useSync.ts` | ✅ Complete | Issue #25, merged |
 | OAuth Flow Handler | `SyncSettings.tsx` | ✅ Complete | Popup + manual token |
-| Sync Status Indicator | - | ❌ Missing | Nice to have |
+| Local Stats | `components/stats/` | ✅ Complete | Issue #15, PR #28 |
+| Event Snapshots | `services/storage/` | ✅ Complete | PR #31 |
+| In Progress Page | `components/inProgress/` | ✅ Complete | PR #32 |
+| Proxy Integration | `rss/proxyManager.ts` | ❌ Missing | Phase 2 - Use server proxy |
+| Sync Status Indicator | - | ❌ Missing | Phase 2 - Nice to have |
 
 ---
 
@@ -156,7 +160,7 @@ Frontend                                    Backend
 | Get play status | `GET /api/v1/play/{feed}/{item}` | `GET /api/v1/play` (list only) | ⚠️ |
 | RSS proxy | `GET /api/v1/rss/proxy/{feed}` | Same | ✅ |
 | Trending | `GET /api/v1/public/trending/podcasts` | Same | ✅ |
-| Token refresh | `POST /api/v1/auth/refresh` | ❌ Not implemented | ⚠️ |
+| Token refresh | `POST /api/v1/auth/refresh` | `POST /api/v1/auth/refresh` | ✅ |
 | Base64 encoding | `btoa(feedUrl)` | Same | ✅ |
 | Episode encoding | `btoa(guid,enclosureUrl)` | Same | ✅ |
 | Timestamps | ISO 8601 | ISO 8601 | ✅ |
@@ -164,7 +168,6 @@ Frontend                                    Backend
 ### Remaining Backend Gaps
 
 1. **`GET /api/v1/play/{feed}/{item}`** - Get specific episode play status (or adjust frontend)
-2. **`POST /api/v1/auth/refresh`** - Token refresh endpoint (or remove from frontend)
 
 ---
 
@@ -205,35 +208,27 @@ Frontend                                    Backend
 
 ## Completed Implementation
 
-### Frontend Files Created (feature/sync branch)
+### Sync Files (all merged to main)
 
 ```
 src/
 ├── components/
-│   └── settings/
-│       └── SyncSettings.tsx      # ✅ Sync connection UI
+│   ├── settings/
+│   │   ├── SyncSettings.tsx      # ✅ Sync connection UI
+│   │   └── Settings.tsx          # ✅ Added SyncSettings section
+│   ├── stats/                    # ✅ Local stats page (PR #28)
+│   └── inProgress/               # ✅ In progress page (PR #32)
 ├── hooks/
 │   └── useSync.ts                # ✅ React hook for sync
-└── services/
-    └── sync/
-        ├── client.ts             # ✅ API client (existing)
-        ├── client.test.ts        # ✅ 29 tests
-        ├── merger.ts             # ✅ Conflict resolution
-        └── merger.test.ts        # ✅ 22 tests
-```
-
-### Files Modified (feature/sync branch)
-
-```
-src/
-├── components/
-│   └── settings/
-│       └── Settings.tsx          # ✅ Added SyncSettings section
 ├── services/
-│   └── i18n/
-│       └── locales/
-│           ├── en.json           # ✅ Added syncSettings translations
-│           └── fr.json           # ✅ Added syncSettings translations
+│   ├── sync/
+│   │   ├── client.ts             # ✅ API client
+│   │   ├── client.test.ts        # ✅ 29 tests
+│   │   ├── merger.ts             # ✅ Conflict resolution
+│   │   └── merger.test.ts        # ✅ 22 tests
+│   └── i18n/locales/
+│       ├── en.json               # ✅ Sync + stats translations
+│       └── fr.json               # ✅ Sync + stats translations
 └── types/
     └── index.ts                  # ✅ Added lastSyncAt to AppSettings
 ```
@@ -263,12 +258,11 @@ src/
 
 | PR | Title | Branch | Status |
 |----|-------|--------|--------|
-| #22 | feat(sync): add balados.sync API client | feature/sync | Open |
+| #22 | feat(sync): add balados.sync API client | feature/sync | ✅ Merged |
+| #26 | fix(sync): critical bugs | fix/sync-critical-bugs | ✅ Merged |
+| #27 | fix: PR #26 review followup | fix/pr26-review-followup | ✅ Merged |
+| #28 | feat(stats): local statistics page | feature/issue-15-local-stats | ✅ Merged |
+| #31 | feat(events): snapshot system | feature/issue-30-event-snapshots | ✅ Merged |
+| #32 | feat(ui): in progress page | feature/issue-29-in-progress-page | ✅ Merged |
 
-The feature/sync branch now contains:
-- Sync client API (PR #22 original)
-- SyncSettings UI (Closes #23)
-- Conflict resolution merger (Closes #24)
-- useSync React hook (Closes #25)
-
-Once PR #22 is merged, all sync functionality will be on main.
+All sync functionality and recent features are on main.

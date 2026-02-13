@@ -142,6 +142,7 @@ JWT Bearer tokens (RS256 asymmetric). OAuth-style flow:
 | DELETE | `/subscriptions/{feed}` | Remove subscription | JWT |
 | POST | `/play` | Update play position | JWT |
 | GET | `/rss/proxy/{feed}` | CORS proxy | JWT |
+| POST | `/auth/refresh` | Token validation/refresh | JWT |
 | GET | `/public/trending/podcasts` | Trending | No |
 
 ### Sync Data Types
@@ -175,26 +176,31 @@ Last-write-wins with timestamps. Special cases:
 
 ## Current Integration Status
 
-### Implemented
+### Phase 1: Core Sync - ✅ Complete
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| Offline sync queue | `balados.app/src/services/storage/syncQueue.ts` | Complete |
-| Sync client API | `balados.app feature/sync` branch | Complete (PR #22) |
-| Backend sync endpoint | `balados.sync POST /api/v1/sync` | Complete |
-| Backend subscriptions API | `balados.sync /api/v1/subscriptions` | Complete |
-| Backend play API | `balados.sync /api/v1/play` | Complete |
-| RSS CORS proxy | `balados.sync /api/v1/rss/proxy/{feed}` | Complete |
-| Trending API | `balados.sync /api/v1/public/trending/podcasts` | Complete |
+| Offline sync queue | `balados.app/src/services/storage/syncQueue.ts` | ✅ Complete |
+| Sync client API | `balados.app/src/services/sync/client.ts` | ✅ Complete (merged) |
+| Conflict resolver | `balados.app/src/services/sync/merger.ts` | ✅ Complete (merged) |
+| useSync hook | `balados.app/src/hooks/useSync.ts` | ✅ Complete (merged) |
+| Sync Settings UI | `balados.app/src/components/settings/SyncSettings.tsx` | ✅ Complete (merged) |
+| Backend sync endpoint | `balados.sync POST /api/v1/sync` | ✅ Complete |
+| Backend subscriptions API | `balados.sync /api/v1/subscriptions` | ✅ Complete |
+| Backend play API | `balados.sync /api/v1/play` | ✅ Complete |
+| RSS CORS proxy | `balados.sync /api/v1/rss/proxy/{feed}` | ✅ Complete |
+| Trending API | `balados.sync /api/v1/public/trending/podcasts` | ✅ Complete |
+| Health endpoint | `balados.sync GET /api/v1/health` | ✅ Complete |
+| Auth refresh endpoint | `balados.sync POST /api/v1/auth/refresh` | ✅ Complete |
 
-### Pending (Frontend)
+### Pending (Phase 2: Polish)
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| Sync Settings UI | `src/components/settings/SyncSettings.tsx` | Not started |
-| Conflict resolver | `src/services/sync/merger.ts` | Not started |
-| useSync hook | `src/hooks/useSync.ts` | Not started |
 | Proxy manager integration | Update `proxyManager.ts` | Not started |
+| Background sync (SW) | Service Worker sync | Not started |
+| Sync status indicator | App header icon | Not started |
+| Trending page UI | `src/components/` (Issue #16) | Not started |
 
 ---
 
@@ -219,30 +225,34 @@ See individual CLAUDE.md files for project-specific rules.
 
 ---
 
-## Current Work - Integration Roadmap
+## Current Work
 
-### Open Issues to Complete Integration
+### Completed Integration Milestones
 
-**Backend (balados.sync):**
-- [#202](https://github.com/podCloud/balados.sync/issues/202) - Add `/api/v1/health` endpoint
-- [#203](https://github.com/podCloud/balados.sync/issues/203) - Add `/api/v1/auth/refresh` endpoint
+**Backend (balados.sync) - All Done:**
+- ✅ [#202](https://github.com/podCloud/balados.sync/issues/202) - `/api/v1/health` endpoint (PR #204)
+- ✅ [#203](https://github.com/podCloud/balados.sync/issues/203) - `/api/v1/auth/refresh` endpoint (PR #205)
+
+**Frontend (balados.app) - All Done (merged to main):**
+- ✅ [#22](https://github.com/podCloud/balados.app/pull/22) - Sync client API (PR merged)
+- ✅ [#23](https://github.com/podCloud/balados.app/issues/23) - Sync Settings UI
+- ✅ [#24](https://github.com/podCloud/balados.app/issues/24) - Conflict resolution merger
+- ✅ [#25](https://github.com/podCloud/balados.app/issues/25) - useSync React hook
+
+**Recent Frontend Additions (on main):**
+- ✅ Local stats page with event logging (#15, PR #28)
+- ✅ Event snapshot system for bounded storage (#30, PR #31)
+- ✅ "In Progress" page for partially listened episodes (#29, PR #32)
+
+### Open Work
 
 **Frontend (balados.app):**
-- [#23](https://github.com/podCloud/balados.app/issues/23) - Sync Settings UI component
-- [#24](https://github.com/podCloud/balados.app/issues/24) - Conflict resolution merger
-- [#25](https://github.com/podCloud/balados.app/issues/25) - useSync React hook
+- [#16](https://github.com/podCloud/balados.app/issues/16) - Trending page (Phase 5.2, needs sync server)
 
-### Priority Order
-
-1. **Backend #202** (health endpoint) - Quick win, unblocks frontend testing
-2. **Frontend #23** (SyncSettings UI) - Core user-facing feature
-3. **Frontend #24** (merger) - Required for sync logic
-4. **Frontend #25** (useSync hook) - Ties everything together
-5. **Backend #203** (auth refresh) - Nice to have, can work without
-
-### Sync Feature Branch
-
-The frontend sync client is on `feature/sync` branch (PR #22). Work on issues #23-25 should be done on that branch or merged after it.
+**Backend (balados.sync):**
+- [PR #206](https://github.com/podCloud/balados.sync/pull/206) - Simplify EventStore API in SnapshotWorker (#146)
+- [PR #198](https://github.com/podCloud/balados.sync/pull/198) - E2E UI testing with Wallaby (#197)
+- Follow-up issues from PR #206: #210, #211, #212
 
 See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
 
