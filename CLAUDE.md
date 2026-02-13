@@ -226,8 +226,10 @@ Both projects require:
   - If the bot review flags critical/must-fix/should-fix issues: **fix them first**, then merge
   - If the bot review approves (no blocking issues): **merge directly**
   - After pushing fix commits, **re-trigger the bot review by removing and re-adding the review label** on the PR, then wait for the new review before merging
-- **Follow-up issues**: When the bot review suggests nice-to-have or optional improvements, create follow-up issues for them.
-  - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up)
+- **Review suggestions are never ignored.** Every item from a bot review must be either:
+  - Fixed in the PR before merging (preferred for must-fix/should-fix), OR
+  - Tracked as a follow-up issue (for nice-to-have items)
+  - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up). In that case, fix everything in the PR.
 
 See individual CLAUDE.md files for project-specific rules.
 
