@@ -203,9 +203,9 @@ Last-write-wins with timestamps. Special cases:
 |-----------|----------|--------|
 | Proxy manager integration | `balados.app/src/services/rss/proxyManager.ts` | ✅ Complete (PR #34) |
 | RSS encoding util | `balados.app/src/utils/rssEncoding.ts` | ✅ Complete (PR #34) |
-| Background sync (SW) | Service Worker sync | Not started |
-| Sync status indicator | App header icon | Not started |
-| Trending page UI | `src/components/` (Issue #16) | Not started |
+| Background sync (SW) | `balados.app/src/workers/sw.ts` | ✅ Complete (Issue #36) |
+| Sync status indicator | App header icon | PR #48 (in review) |
+| Trending page UI | `src/components/explorer/Trending.tsx` | PR #49 (in review) |
 
 ---
 
@@ -276,6 +276,7 @@ See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status
 - [docs/ARCHITECTURE.md](balados.app/docs/ARCHITECTURE.md) - Technical architecture
 - [docs/SYNC.md](balados.app/docs/SYNC.md) - Sync strategy
 - [docs/OFFLINE.md](balados.app/docs/OFFLINE.md) - PWA & offline
+- [docs/BACKGROUND_SYNC.md](balados.app/docs/BACKGROUND_SYNC.md) - Background Sync via Service Worker
 - [docs/ROADMAP.md](balados.app/docs/ROADMAP.md) - Development phases
 
 ### balados.sync
