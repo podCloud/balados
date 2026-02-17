@@ -197,15 +197,15 @@ Last-write-wins with timestamps. Special cases:
 | Health endpoint | `balados.sync GET /api/v1/health` | ✅ Complete |
 | Auth refresh endpoint | `balados.sync POST /api/v1/auth/refresh` | ✅ Complete |
 
-### Pending (Phase 2: Polish)
+### Phase 2: Polish - ✅ Complete
 
 | Component | Location | Status |
 |-----------|----------|--------|
 | Proxy manager integration | `balados.app/src/services/rss/proxyManager.ts` | ✅ Complete (PR #34) |
 | RSS encoding util | `balados.app/src/utils/rssEncoding.ts` | ✅ Complete (PR #34) |
-| Background sync (SW) | `balados.app/src/workers/sw.ts` | ✅ Complete (Issue #36) |
-| Sync status indicator | App header icon | PR #48 (in review) |
-| Trending page UI | `src/components/explorer/Trending.tsx` | PR #49 (in review) |
+| Background sync (SW) | `balados.app/src/workers/sw.ts` | ✅ Complete (PR #37) |
+| Sync status indicator | `balados.app/src/components/library/SyncStatusIcon.tsx` | ✅ Complete (PR #48) |
+| Trending page UI | `balados.app/src/components/explorer/Trending.tsx` | ✅ Complete (PR #49) |
 
 ---
 
@@ -254,16 +254,19 @@ See individual CLAUDE.md files for project-specific rules.
 - ✅ Event snapshot system for bounded storage (#30, PR #31)
 - ✅ "In Progress" page for partially listened episodes (#29, PR #32)
 - ✅ Sync server CORS proxy in ProxyManager + URL-safe base64 encoding (#33, PR #34)
+- ✅ Background sync via Service Worker (#36, PR #37)
+- ✅ Sync status indicator (PR #48)
+- ✅ Trending page (PR #49)
+- ✅ Enhanced show notes with markdown rendering (#52, PR #53)
+
+**Recent Backend Additions:**
+- ✅ Bounded context aggregate split - User aggregate → 4 aggregates (#148, PR #238)
 
 ### Open Work
 
-**Frontend (balados.app):**
-- [#16](https://github.com/podCloud/balados.app/issues/16) - Trending page (Phase 5.2, needs sync server)
-
 **Backend (balados.sync):**
-- [PR #206](https://github.com/podCloud/balados.sync/pull/206) - Simplify EventStore API in SnapshotWorker (#146)
 - [PR #198](https://github.com/podCloud/balados.sync/pull/198) - E2E UI testing with Wallaby (#197)
-- Follow-up issues from PR #206: #210, #211, #212
+- Follow-up issues from PR #238: [#239](https://github.com/podCloud/balados.sync/issues/239), [#240](https://github.com/podCloud/balados.sync/issues/240)
 
 See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
 
