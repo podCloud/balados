@@ -231,6 +231,8 @@ Both projects require:
   - Tracked as a follow-up issue (for nice-to-have items)
   - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up). In that case, fix everything in the PR.
 
+- **Never ignore failing tests.** If running tests reveals failures (even pre-existing and unrelated to current work), create a GitHub issue to track them.
+
 See individual CLAUDE.md files for project-specific rules.
 
 ---
