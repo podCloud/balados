@@ -145,6 +145,9 @@ JWT Bearer tokens (RS256 asymmetric). OAuth-style flow:
 | POST | `/subscriptions` | Add subscription | JWT |
 | DELETE | `/subscriptions/{feed}` | Remove subscription | JWT |
 | POST | `/play` | Update play position | JWT |
+| GET | `/likes` | List user's likes (paginated) | JWT |
+| POST | `/likes` | Like a podcast or episode | JWT |
+| DELETE | `/likes/{feed}` | Unlike a podcast | JWT |
 | GET | `/rss/proxy/{feed}` | CORS proxy | JWT |
 | POST | `/auth/refresh` | Token validation/refresh | JWT |
 | GET | `/public/trending/podcasts` | Trending | No |
@@ -167,6 +170,13 @@ interface PlayStatusSync {
   played: boolean;             // completed
   updated_at: string;          // ISO date
 }
+
+// Like
+interface LikeSync {
+  rss_source_feed: string;     // base64url(feedUrl)
+  liked_at: string;            // ISO date
+  unliked_at?: string;         // ISO date (if unliked)
+}
 ```
 
 ### Conflict Resolution
@@ -174,6 +184,7 @@ interface PlayStatusSync {
 Last-write-wins with timestamps. Special cases:
 - Same episode, different positions → higher position wins
 - Subscribe vs unsubscribe → most recent timestamp wins
+- Like vs unlike → most recent timestamp wins
 - Deleted playlists → soft delete preserved for 45 days
 
 ---
@@ -206,6 +217,8 @@ Last-write-wins with timestamps. Special cases:
 | Background sync (SW) | `balados.app/src/workers/sw.ts` | ✅ Complete (PR #37) |
 | Sync status indicator | `balados.app/src/components/library/SyncStatusIcon.tsx` | ✅ Complete (PR #48) |
 | Trending page UI | `balados.app/src/components/explorer/Trending.tsx` | ✅ Complete (PR #49) |
+| Likes system (backend) | `balados.sync /api/v1/likes` | ✅ Complete (#154, PR #255) |
+| Likes system (frontend) | `balados.app/src/hooks/useLike.ts` | ✅ Complete (PR #64) |
 
 ---
 
@@ -260,9 +273,11 @@ See individual CLAUDE.md files for project-specific rules.
 - ✅ Sync status indicator (PR #48)
 - ✅ Trending page (PR #49)
 - ✅ Enhanced show notes with markdown rendering (#52, PR #53)
+- ✅ Likes system with sync integration (PR #64) — follow-up: #65
 
 **Recent Backend Additions:**
 - ✅ Bounded context aggregate split - User aggregate → 4 aggregates (#148, PR #238)
+- ✅ Likes system - Like aggregate, LikeProjector, PopularityProjector, LikeController API (#154, PR #255) — follow-ups: #256, #257, #258, #259, #260
 
 ### Open Work
 

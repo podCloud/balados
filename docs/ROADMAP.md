@@ -1,6 +1,6 @@
 # Integration Roadmap - Balados Ecosystem
 
-**Last updated:** 2026-02-12
+**Last updated:** 2026-02-20
 
 ---
 
@@ -61,75 +61,40 @@ All Phase 1 items have been implemented and merged to main.
 
 ---
 
-## Phase 2: Enhanced Sync (Priority: High)
+## Phase 2: Enhanced Sync (Priority: High) - ✅ COMPLETE
 
 **Goal:** Robust syncing with better UX and reliability.
 
-### 2.1 Server Proxy Integration
+### 2.1 Server Proxy Integration - ✅ Done (PR #34)
 
-**Status:** Not started
-**Effort:** Small
 **Files:** `balados.app/src/services/rss/proxyManager.ts`
 
-When connected to sync server:
-1. Use server's CORS proxy first (`/api/v1/rss/proxy/{feed}`)
-2. Fall back to configured proxies on failure
-3. Benefits: 5-min cache, no rate limits, reliability
+### 2.2 Sync Status Indicator - ✅ Done (PR #48)
 
-**Acceptance Criteria:**
-- [ ] Connected users use server proxy
-- [ ] Fallback works when proxy fails
-- [ ] Disconnected users use public proxies
+**Files:** `balados.app/src/components/library/SyncStatusIcon.tsx`
 
-### 2.2 Sync Status Indicator
+### 2.3 Background Sync via Service Worker - ✅ Done (PR #37)
 
-**Status:** Not started
-**Effort:** Small
-**Files:** `balados.app/src/components/ui/SyncIndicator.tsx`
-
-Visual indicator in app header/navigation:
-- ○ Not connected (grey)
-- ● Connected, up to date (green)
-- ◐ Syncing in progress (animated)
-- ◑ Pending items (orange)
-- ● Error (red, clickable for details)
-
-**Acceptance Criteria:**
-- [ ] Indicator visible on all screens
-- [ ] Accurate reflection of sync state
-- [ ] Click shows sync details/errors
-
-### 2.3 Background Sync via Service Worker
-
-**Status:** Not started
-**Effort:** Medium
 **Files:** `balados.app/src/workers/sw.ts`
 
-- Register for Background Sync API
-- Process sync queue when connectivity restored
-- Periodic sync when app is open
-- Handle sync failures gracefully
+### 2.4 Trending Page - ✅ Done (PR #49)
 
-**Acceptance Criteria:**
-- [ ] Offline actions sync when back online
-- [ ] Works even if app is closed
-- [ ] No duplicate sync attempts
+**Files:** `balados.app/src/components/explorer/Trending.tsx`
 
-### 2.4 Error Handling & User Feedback
+### 2.5 Likes System - ✅ Done (Issue #154)
+
+**Files:**
+- Backend: PR #255 (Like aggregate, LikeProjector, PopularityProjector, LikeController, sync integration)
+- Frontend: PR #64 (useLike hook, LikeButton, sync queue, optimistic count)
+
+### 2.6 Error Handling & User Feedback
 
 **Status:** Not started
 **Effort:** Small
-**Files:** Various components
 
 - Toast notifications for sync events
-- Clear error messages (not technical jargon)
+- Clear error messages
 - Retry options for failed syncs
-- Offline mode indication
-
-**Acceptance Criteria:**
-- [ ] Users know when sync succeeds/fails
-- [ ] Actionable error messages
-- [ ] Retry button for failures
 
 ---
 

@@ -1,6 +1,6 @@
 # Integration Status - balados.app ↔ balados.sync
 
-**Last updated:** 2026-02-12
+**Last updated:** 2026-02-20
 
 ---
 
@@ -9,7 +9,8 @@
 The backend (`balados.sync`) has a complete API for synchronization including health, auth/refresh, sync, subscriptions, play, RSS proxy, and trending endpoints. The frontend (`balados.app`) has full Phase 1 sync implementation **merged to main** including the sync client, settings UI, conflict resolution, and React hook. Additional features (local stats, event snapshots, in-progress page) have also been shipped.
 
 **Phase 1 (Core Sync): ✅ Complete**
-**Overall Progress: ~90%** (Phase 2 polish items remaining)
+**Phase 2 (Polish): ✅ Complete**
+**Overall Progress: ~95%** (Likes system shipped, remaining: error codes, playlist sync, WebSocket)
 
 ---
 
@@ -33,6 +34,10 @@ The backend (`balados.sync`) has a complete API for synchronization including he
 | Playlists API | `/api/v1/playlists/*` | ✅ Ready | Full CRUD |
 | Collections API | `/api/v1/collections/*` | ✅ Ready | Full CRUD |
 | Privacy API | `/api/v1/privacy` | ✅ Ready | Per-feed settings |
+| Like Podcast | `POST /api/v1/likes` | ✅ Ready | Like podcast or episode |
+| Unlike Podcast | `DELETE /api/v1/likes/{feed}` | ✅ Ready | URL-safe base64 |
+| Unlike Episode | `DELETE /api/v1/likes/{feed}/{item}` | ✅ Ready | URL-safe base64 |
+| List Likes | `GET /api/v1/likes` | ✅ Ready | Paginated, has_more |
 | JWT Auth | OAuth flow | ✅ Ready | RS256, scopes |
 
 ### Frontend (balados.app) - 🟢 Phase 1 Complete (on main)
@@ -51,8 +56,12 @@ The backend (`balados.sync`) has a complete API for synchronization including he
 | Local Stats | `components/stats/` | ✅ Complete | Issue #15, PR #28 |
 | Event Snapshots | `services/storage/` | ✅ Complete | PR #31 |
 | In Progress Page | `components/inProgress/` | ✅ Complete | PR #32 |
-| Proxy Integration | `rss/proxyManager.ts` | ❌ Missing | Phase 2 - Use server proxy |
-| Sync Status Indicator | - | ❌ Missing | Phase 2 - Nice to have |
+| Proxy Integration | `rss/proxyManager.ts` | ✅ Complete | PR #34 |
+| Sync Status Indicator | `library/SyncStatusIcon.tsx` | ✅ Complete | PR #48 |
+| Background Sync (SW) | `workers/sw.ts` | ✅ Complete | PR #37 |
+| Trending Page | `explorer/Trending.tsx` | ✅ Complete | PR #49 |
+| Like Button | `ui/LikeButton.tsx` | ✅ Complete | PR #64 |
+| useLike Hook | `hooks/useLike.ts` | ✅ Complete | PR #64 |
 
 ---
 
@@ -121,13 +130,9 @@ Frontend                                    Backend
 
 ### Important (Should Fix)
 
-4. **Proxy Manager Not Integrated**
-   - When connected, should use server's CORS proxy first
-   - Current code always uses public proxies
+4. ~~**Proxy Manager Not Integrated**~~ → Done (PR #34)
 
-5. **No Background Sync**
-   - Service Worker sync not triggered
-   - Queue only processes on explicit online event
+5. ~~**No Background Sync**~~ → Done (PR #37)
 
 6. **Missing Error Codes**
    - Backend returns error codes but frontend ignores them
@@ -143,9 +148,7 @@ Frontend                                    Backend
    - WebSocket endpoint exists on backend
    - Frontend doesn't connect to it
 
-9. **No Sync Status Indicator**
-   - Would be nice in app header
-   - Shows connected/syncing/pending status
+9. ~~**No Sync Status Indicator**~~ → Done (PR #48)
 
 ---
 
@@ -158,6 +161,7 @@ Frontend                                    Backend
 | Subscriptions | `GET/POST/DELETE /api/v1/subscriptions` | Same | ✅ |
 | Play status | `POST /api/v1/play` | `POST /api/v1/play` | ✅ |
 | Get play status | `GET /api/v1/play/{feed}/{item}` | `GET /api/v1/play` (list only) | ⚠️ |
+| Likes | `POST/DELETE/GET /api/v1/likes` | Same | ✅ |
 | RSS proxy | `GET /api/v1/rss/proxy/{feed}` | Same | ✅ |
 | Trending | `GET /api/v1/public/trending/podcasts` | Same | ✅ |
 | Token refresh | `POST /api/v1/auth/refresh` | `POST /api/v1/auth/refresh` | ✅ |
