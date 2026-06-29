@@ -228,6 +228,16 @@ Test RSA keypair for local development is in `balados.sync_keys.md`.
 
 ---
 
+## Development Workflow Skill
+
+The shared development workflow skill lives in `.claude/skills/development-workflow/`. Trigger it with "continue le workflow".
+
+- **Review is local**: adversarial subagents run the review and post verdicts as PR comments. There is no `needs-claude-review` label and no CI review job.
+- Each submodule provides `.claude/workflow-stack.md` with its own project-specific configuration.
+- The interactive `@claude` workflow (`claude.yml`) in each repo remains active for ad-hoc questions.
+
+---
+
 ## Git Workflow
 
 Both projects require:
@@ -235,11 +245,11 @@ Both projects require:
 - Feature branches: `feature/issue-<number>-<slug>`
 - Conventional commits
 - Author: `--author="Claude <noreply@anthropic.com>"`
-- **No human review required.** The CI bot review (Claude Code Review workflow) is sufficient.
-  - If the bot review flags critical/must-fix/should-fix issues: **fix them first**, then merge
-  - If the bot review approves (no blocking issues): **merge directly**
-  - After pushing fix commits, **re-trigger the bot review by removing and re-adding the review label** on the PR, then wait for the new review before merging
-- **Review suggestions are never ignored.** Every item from a bot review must be either:
+- **No human review required.** The local `development-workflow` skill review is sufficient.
+  - If the review flags critical/must-fix/should-fix issues: **fix them first**, then merge
+  - If the review approves (no blocking issues): **merge directly**
+  - After pushing fix commits, re-run the `development-workflow` skill to trigger a new review and wait for approval before merging
+- **Review suggestions are never ignored.** Every item from a review must be either:
   - Fixed in the PR before merging (preferred for must-fix/should-fix), OR
   - Tracked as a follow-up issue (for nice-to-have items)
   - Exception: if the PR's source issue is already a follow-up itself, do NOT create follow-up issues (no follow-up of follow-up). In that case, fix everything in the PR.
