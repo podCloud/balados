@@ -146,7 +146,7 @@ git commit --author="Claude <noreply@anthropic.com>" -m "feat(workflow-skill): s
 
 - [ ] **Step 1: Écrire `## Overview`**
 
-Principe en 2 phrases : boucle autonome discover→review→implement→verify→commit qui tourne jusqu'à ce que la file soit vide ; sous-agents pour la review adversariale, worktrees pour l'isolation, GitHub (PR/commentaires) comme mémoire externe partagée.
+Principe en 2-3 phrases : boucle autonome discover→review→implement→verify→commit qui tourne jusqu'à ce que la file soit vide ; sous-agents pour la review adversariale, worktrees pour l'isolation, GitHub (PR/commentaires) comme mémoire externe partagée. **Énoncer dès l'Overview que ce loop s'exécute EN orchestrant des skills superpowers à chaque étape (voir la section « Use superpowers » plus bas) — ce n'est pas une réimplémentation manuelle.**
 
 - [ ] **Step 2: Écrire `## Detect & load the stack`**
 
@@ -173,9 +173,32 @@ Pour chaque PR ouverte, déduire l'état de git/gh (PAS d'un label) :
 - review clean + rien en suspens + mergeable → « prête à merger » → COMMIT (merge)
 ```
 
-- [ ] **Step 5: Liens REQUIRED vers les références et superpowers**
+- [ ] **Step 5: Section `## Use superpowers (REQUIRED — non négociable)`**
 
-Ajouter les marqueurs : `**REQUIRED:** references/review-gate.md`, `references/merge-rules.md`, `references/stop-conditions.md`, et `**REQUIRED SUB-SKILL:** superpowers:using-git-worktrees`, `superpowers:subagent-driven-development`, `superpowers:verification-before-completion`.
+C'est le cœur de l'intention. La skill ne réimplémente pas le loop à la main : elle **orchestre des skills superpowers** à chaque étape. Écrire une section dédiée et proéminente (pas une note de bas de page), avec un mapping étape → skill, formulée en obligation :
+
+```markdown
+## Use superpowers (REQUIRED — non négociable)
+
+Ce workflow EST une boucle superpowers. À chaque étape, invoquer la skill
+superpowers correspondante AVANT d'agir — ne jamais improviser l'équivalent à la main.
+
+| Étape du loop | Skill superpowers à invoquer |
+|---|---|
+| Isolation du travail (review ET implement) | `superpowers:using-git-worktrees` |
+| Dispatch des sous-agents (reviewer, fix) | `superpowers:subagent-driven-development` (ou `dispatching-parallel-agents` pour les N reviewers) |
+| Implémentation d'un fix/feature | `superpowers:test-driven-development` |
+| Review adversariale locale | `superpowers:requesting-code-review` + `superpowers:receiving-code-review` |
+| Gate « c'est fait » avant push/merge | `superpowers:verification-before-completion` |
+| Debug d'un échec | `superpowers:systematic-debugging` |
+| Clôture de branche | `superpowers:finishing-a-development-branch` |
+
+**Violer la lettre de cette règle = violer son esprit.** Red flag STOP :
+« je vais juste lancer un agent review vite fait sans passer par la skill ».
+Si une skill superpowers couvre l'étape, on l'invoque — pas d'exception.
+```
+
+Conserver aussi les liens vers les références : `**REQUIRED:** references/review-gate.md`, `references/merge-rules.md`, `references/stop-conditions.md`.
 
 - [ ] **Step 6: Vérifier la concision**
 
