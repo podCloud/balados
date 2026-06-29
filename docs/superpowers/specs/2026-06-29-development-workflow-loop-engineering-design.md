@@ -78,7 +78,7 @@ Pour chaque PR ouverte, l'état est **déduit de git/gh** (dates de commits vs d
 
 - **Sous-agent dédié, contexte séparé**, prompté pour **réfuter/casser** le code (pas pour approuver).
 - Tourne sur un **worktree** de la branche (isolation).
-- **Vote** : N reviewers (N selon la taille du diff) ; verdict catégorisé `must-fix` / `should-fix` / `nice-to-have`.
+- **Vote** : N reviewers, **minimum 2**, N croissant selon la taille du diff (échelle exacte fixée pendant `writing-skills`) ; verdict catégorisé `must-fix` / `should-fix` / `nice-to-have`.
 - **Trace** : la review est postée en **commentaire de PR** (mémoire externe partagée entre runs/agents).
 - **Plus de label `needs-claude-review`, plus de workflow CI `claude-review`.**
 
@@ -121,14 +121,22 @@ Le loop s'arrête (et rend un résumé) quand **tout** est vide :
 
 Si une **même** PR échoue sa review en boucle (fix → re-review → toujours des `must-fix`) :
 
-- **après 3 cycles fix→re-review infructueux**, l'agent :
-  1. détecte dynamiquement les responsables du repo :
+- **après 3 cycles fix→re-review infructueux**, l'agent **résout les responsables** via une cascade (premier non-vide gagne) :
+  1. **Team(s) ayant accès explicite au repo** (source settings-driven, prioritaire) :
+     `gh api "repos/{owner}/{repo}/teams" --jq '[.[] | "@{org}/" + .slug]'` → ping de la team (`@podCloud/balados`).
+  2. Sinon, **team de l'org dont le slug/nom matche le projet** :
+     `gh api "orgs/{org}/teams" --jq '...'` → match sur `balados`.
+  3. Sinon, **collaborateurs admin/maintain** :
      `gh api "repos/{owner}/{repo}/collaborators" --jq '[.[] | select(.role_name=="admin" or .role_name=="maintain") | .login]'`
-  2. **assigne** ces personnes sur la PR (`gh pr edit <n> --add-assignee …`) **et les ping** dans un commentaire de blocage (`@login …`) expliquant l'échec après 3 tentatives ;
-  3. **fallback** sur `@PofMagicfingers` si la liste est vide ou l'API échoue.
+  4. Sinon, **@PofMagicfingers**.
+- puis **assigne** les personnes résolues sur la PR (`gh pr edit <n> --add-assignee …` ; pour une team : assigner ses membres) **et les ping** dans un commentaire de blocage expliquant l'échec après 3 tentatives ;
 - puis **passe à l'item suivant** de la file (le loop ne s'arrête pas, il continue le reste).
 
-> Note org : le repo appartient à l'org `podCloud` (on ne peut pas assigner l'org). Le token bot ne peut pas lister les teams (403). La détection dynamique des collaborateurs admin/maintain est donc le mécanisme pluriel retenu : aujourd'hui = `PofMagicfingers`, demain = tout admin/maintainer ajouté, sans modifier la skill.
+> Décision : la team `@podCloud/balados` est **attachée aux deux repos** (rôle maintain/admin) → l'étape 1 résout directement. Tout futur membre de la team est ainsi ping/assigné automatiquement, sans hardcoder.
+
+> Note org : le repo appartient à l'org `podCloud` (on ne peut pas assigner l'org). Les rôles `admin`/`maintain` viennent des **settings du repo** (Collaborators and teams), pas du fait d'avoir une PR mergée : un contributeur externe open source n'y figure jamais tant qu'il n'est pas ajouté explicitement — c'est le comportement voulu (on ping les responsables, pas un contributeur de passage).
+>
+> La permission **Organization → Members: Read** a été accordée à la GitHub App du wrapper `gh.sh` → le bot peut désormais lister les teams. La team `@podCloud/balados` est attachée aux deux repos (voir cascade §5.3), ce qui en fait la source de ping pluriel et dynamique privilégiée. La détection des collaborateurs admin/maintain reste en fallback.
 
 ## 6. Skills superpowers mobilisées
 
