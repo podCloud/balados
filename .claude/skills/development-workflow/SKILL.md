@@ -1,13 +1,13 @@
 ---
 name: development-workflow
-description: Use when Pof says "continue le workflow" or asks to process the dev backlog — triaging PRs, reviewing PRs locally, fixing review feedback, implementing prioritized issues, and merging, autonomously until the work queue is empty.
+description: Use when Pof says "continue le workflow", or asks to process / advance the dev backlog (open PRs and prioritized issues) autonomously.
 ---
 
 # Development Workflow (Loop Engineering)
 
 ## Overview
 
-An autonomous loop — discover → review → implement → verify → commit → loop — that runs until the work queue is empty. Subagents perform adversarial review, git worktrees isolate each unit of work, and GitHub (PRs, issue comments) is the shared external memory across iterations. **This loop is executed BY orchestrating superpowers skills at every step (see "Use superpowers" below) — it is never a manual re-implementation.**
+Une boucle autonome — discover → review → implement → verify → commit → loop — qui tourne jusqu'à ce que la file de travail soit vide. Des sous-agents font la review adversariale, des git worktrees isolent chaque unité de travail, et GitHub (PRs, commentaires d'issues) sert de mémoire externe partagée entre les itérations. **Cette boucle s'exécute EN orchestrant des skills superpowers à chaque étape (voir « Use superpowers » plus bas) — jamais en réimplémentant l'équivalent à la main.**
 
 ## Detect & load the stack
 
@@ -28,8 +28,8 @@ défini par ce fichier stack — ne jamais supposer la stack, toujours la charge
 | **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. |
 | **REVIEW** | (a) PR à reviewer → worktree + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
 | **IMPLEMENT** | Worktree isolé, TDD, conventions de la stack chargée. |
-| **VERIFY** | Lancer test/lint/build de la stack. Gate « c'est fait » avant tout push. |
-| **COMMIT** | Commit (author Claude), push, PR **sans label** : `gh pr create ...`. Si prête à merger : `gh pr merge <n> --merge --delete-branch`. |
+| **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant push : tests verts ET reviewers OK. |
+| **COMMIT** | Commit (author Claude), push, PR **sans label** : `~/.config/podclaude/gh.sh pr create ...`. Si prête à merger : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`. |
 | **LOOP** | Revenir à DISCOVER tant que la file n'est pas vide (voir `references/stop-conditions.md`). |
 
 ## Triage (état réel, sans label)

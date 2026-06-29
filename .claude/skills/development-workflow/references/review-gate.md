@@ -54,8 +54,8 @@ commentaire de PR lisible qui liste les `must-fix` / `should-fix` / `nice-to-hav
 
 Avant de démarrer tout travail sur une PR (review OU fix), commenter la PR
 pour poser un verrou visible :
-- review en cours  → `gh pr comment <n> --body "🤖 Review locale en cours"`
-- fix des retours  → `gh pr comment <n> --body "🔧 Correction des retours en cours"`
+- review en cours  → `~/.config/podclaude/gh.sh pr comment <n> --body "🤖 Review locale en cours"`
+- fix des retours  → `~/.config/podclaude/gh.sh pr comment <n> --body "🔧 Correction des retours en cours"`
 
 **Violer la lettre de cette règle = violer son esprit.**
 
