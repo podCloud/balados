@@ -26,15 +26,15 @@ infructueux : résoudre les responsables via la cascade (premier non-vide gagne)
 puis assigner + ping dans un commentaire de blocage, puis PASSER à l'item suivant
 (le loop ne s'arrête pas).
 
-Cascade :
+Cascade (toutes les commandes `gh` via `~/.config/podclaude/gh.sh`) :
 1. Team(s) avec accès au repo :
-   gh api "repos/{owner}/{repo}/teams" --jq '[.[] | "@{org}/" + .slug]'   # → @podCloud/balados
-2. Sinon team de l'org matchant le projet : gh api "orgs/{org}/teams" → 'balados'
+   `~/.config/podclaude/gh.sh api "repos/{owner}/{repo}/teams" --jq '[.[] | "@{org}/" + .slug]'`   # → @podCloud/balados
+2. Sinon team de l'org matchant le projet : `~/.config/podclaude/gh.sh api "orgs/{org}/teams"` → 'balados'
 3. Sinon collaborateurs admin/maintain :
-   gh api "repos/{owner}/{repo}/collaborators" --jq '[.[] | select(.role_name=="admin" or .role_name=="maintain") | .login]'
+   `~/.config/podclaude/gh.sh api "repos/{owner}/{repo}/collaborators" --jq '[.[] | select(.role_name=="admin" or .role_name=="maintain") | .login]'`
 4. Sinon @PofMagicfingers
 
-Assigner : `gh pr edit <n> --add-assignee <login…>` (pour une team : ses membres).
+Assigner : `~/.config/podclaude/gh.sh pr edit <n> --add-assignee <login…>` (pour une team : ses membres).
 
 Le ping de blocage est un commentaire de PR via `~/.config/podclaude/gh.sh pr
 comment <n>` qui nomme les responsables résolus et décrit pourquoi la PR est
