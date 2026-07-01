@@ -55,9 +55,12 @@ commentaire de PR lisible qui liste les `must-fix` / `should-fix` / `nice-to-hav
 Avant de démarrer tout travail sur une PR (review OU fix) **OU sur une issue
 prise en IMPLEMENT** (pas encore de PR), commenter la PR/issue pour poser un
 verrou visible :
-- review en cours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🤖 Review locale en cours"`
-- fix des retours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🔧 Correction des retours en cours"`
-- implémentation issue  → `~/.config/podclaude/gh.sh issue comment <n> --body "🔧 Implémentation en cours"`
+- review en cours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🤖 Local review in progress"`
+- fix des retours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🔧 Addressing review feedback"`
+- implémentation issue  → `~/.config/podclaude/gh.sh issue comment <n> --body "🔧 Implementation in progress"`
+
+Les commentaires postés sur GitHub sont toujours en anglais (convention du
+repo), même si ce fichier d'instructions reste en français pour l'instant.
 
 Le verrou sur issue s'applique dès DISCOVER, avant toute lecture de code ou
 création de branche/worktree — pas seulement avant l'étape REVIEW d'une PR déjà
