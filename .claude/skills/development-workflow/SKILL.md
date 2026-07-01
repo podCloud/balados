@@ -23,15 +23,23 @@ défini par ce fichier stack — ne jamais supposer la stack, toujours la charge
 
 ## Communication (REQUIRED — non négociable)
 
-Dès qu'un item est choisi en DISCOVER (PR ou issue), **l'annoncer à l'utilisateur
-avant toute action** — avant de lire le code, créer une branche/worktree ou committer.
+Distinct du **claim lock** de `references/review-gate.md` (verrou GitHub entre
+agents parallèles, scopé à REVIEW/fix sur une PR existante) : ceci est
+l'annonce faite à **l'utilisateur dans la conversation**, à chaque item choisi
+en DISCOVER — PR ou issue, REVIEW ou IMPLEMENT (une issue sans PR n'a pas de
+claim lock possible).
+
+Dès qu'un item est choisi en DISCOVER, **l'annoncer à l'utilisateur avant toute
+action** — avant de lire le code, créer une branche/worktree ou committer.
 Un message court suffit : dépôt, numéro, titre, étape visée (REVIEW ou IMPLEMENT).
 Ne jamais enchaîner DISCOVER → IMPLEMENT en silence, même en mode autonome.
 
 **Violer la lettre de cette règle = violer son esprit.** Red flag STOP :
-« le workflow est déjà lancé, pas besoin de reconfirmer chaque item » —
-l'autonomie porte sur l'EXÉCUTION (pas de validation requise à chaque étape),
-PAS sur la visibilité : chaque item démarré doit être annoncé avant d'agir.
+« le claim lock GitHub couvre déjà ça » — le claim lock coordonne des agents
+entre eux, il ne prévient pas l'utilisateur ; « le workflow est déjà lancé, pas
+besoin de reconfirmer chaque item » — l'autonomie porte sur l'EXÉCUTION (pas de
+validation requise à chaque étape), PAS sur la visibilité : chaque item démarré
+doit être annoncé avant d'agir.
 
 ## The loop
 
