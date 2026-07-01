@@ -52,10 +52,16 @@ commentaire de PR lisible qui liste les `must-fix` / `should-fix` / `nice-to-hav
 
 ## Claim lock — comment AVANT de travailler
 
-Avant de démarrer tout travail sur une PR (review OU fix), commenter la PR
-pour poser un verrou visible :
-- review en cours  → `~/.config/podclaude/gh.sh pr comment <n> --body "🤖 Review locale en cours"`
-- fix des retours  → `~/.config/podclaude/gh.sh pr comment <n> --body "🔧 Correction des retours en cours"`
+Avant de démarrer tout travail sur une PR (review OU fix) **OU sur une issue
+prise en IMPLEMENT** (pas encore de PR), commenter la PR/issue pour poser un
+verrou visible :
+- review en cours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🤖 Review locale en cours"`
+- fix des retours       → `~/.config/podclaude/gh.sh pr comment <n> --body "🔧 Correction des retours en cours"`
+- implémentation issue  → `~/.config/podclaude/gh.sh issue comment <n> --body "🔧 Implémentation en cours"`
+
+Le verrou sur issue s'applique dès DISCOVER, avant toute lecture de code ou
+création de branche/worktree — pas seulement avant l'étape REVIEW d'une PR déjà
+ouverte.
 
 **Violer la lettre de cette règle = violer son esprit.**
 

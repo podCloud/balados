@@ -21,31 +21,11 @@ défini par ce fichier stack — ne jamais supposer la stack, toujours la charge
 
 > Tous les `gh` passent par `~/.config/podclaude/gh.sh` (jamais `gh` nu).
 
-## Communication (REQUIRED — non négociable)
-
-Distinct du **claim lock** de `references/review-gate.md` (verrou GitHub entre
-agents parallèles, scopé à REVIEW/fix sur une PR existante) : ceci est
-l'annonce faite à **l'utilisateur dans la conversation**, à chaque item choisi
-en DISCOVER — PR ou issue, REVIEW ou IMPLEMENT (une issue sans PR n'a pas de
-claim lock possible).
-
-Dès qu'un item est choisi en DISCOVER, **l'annoncer à l'utilisateur avant toute
-action** — avant de lire le code, créer une branche/worktree ou committer.
-Un message court suffit : dépôt, numéro, titre, étape visée (REVIEW ou IMPLEMENT).
-Ne jamais enchaîner DISCOVER → IMPLEMENT en silence, même en mode autonome.
-
-**Violer la lettre de cette règle = violer son esprit.** Red flag STOP :
-« le claim lock GitHub couvre déjà ça » — le claim lock coordonne des agents
-entre eux, il ne prévient pas l'utilisateur ; « le workflow est déjà lancé, pas
-besoin de reconfirmer chaque item » — l'autonomie porte sur l'EXÉCUTION (pas de
-validation requise à chaque étape), PAS sur la visibilité : chaque item démarré
-doit être annoncé avant d'agir.
-
 ## The loop
 
 | Étape | Action |
 |---|---|
-| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. **Annoncer l'item choisi (voir Communication) avant de passer à l'étape suivante.** |
+| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. **Dès l'item choisi : poser le claim lock (`references/review-gate.md`) avant toute lecture de code / branche / commit — le verrou s'applique aux issues comme aux PR.** |
 | **REVIEW** | (a) PR à reviewer → worktree + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
 | **IMPLEMENT** | Worktree isolé, TDD, conventions de la stack chargée. |
 | **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant push : tests verts ET reviewers OK. |
