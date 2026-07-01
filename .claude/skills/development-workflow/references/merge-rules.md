@@ -35,7 +35,11 @@ Format de titre des issues de suivi :
 Exemple : `[Follow-up #64] refactor: extract useLike hook polling logic`.
 
 Exception : si la PR est elle-même un follow-up, on ne crée PAS de follow-up de
-follow-up — tout est corrigé directement dans la PR avant merge.
+follow-up — tout est corrigé directement dans la PR avant merge. Cette exception
+s'applique **même si** le constat porte sur un fichier hors du diff de la PR, ou
+sur un bug préexistant (pas une régression introduite par la PR) : « ce n'est pas
+dans mon diff » et « c'était déjà comme ça avant » ne sont pas des motifs pour
+retomber sur un follow-up quand la PR en cours est déjà un follow-up.
 
 ## Bulletproofing
 
@@ -47,6 +51,8 @@ follow-up — tout est corrigé directement dans la PR avant merge.
 - « c'est approuvé avec commentaires, donc mergeable »
 - « c'est juste cosmétique »
 - « ça ne débloque pas le ship »
+- « ce n'est pas dans le diff de cette PR »
+- « c'est préexistant, pas une régression de cette PR »
 
 | Excuse | Réalité |
 |--------|---------|
@@ -56,3 +62,5 @@ follow-up — tout est corrigé directement dans la PR avant merge.
 | « Extract when you have *proven* reuse, not when you *predict* you might use it. » | Bonne maxime d'ingénierie, mauvaise raison de ne rien tracer. La décision de ne pas corriger se documente dans une follow-up issue, elle ne se prend pas en silence. |
 | « Everything else is nice-to-have that doesn't unblock shipping. Rename the prop, merge, ship it. That's what I'd actually do. » | « Doesn't unblock shipping » ne dispense pas du suivi. Chaque nice-to-have non touché = une follow-up issue, sinon pas de merge. |
 | « The math: Feature works. Tests pass. Sprint deadline is now. » | La deadline ne change pas la gate. Tests verts + feature OK n'autorisent pas à sauter le tracking des remarques restantes. |
+| « Ce finding touche PlayerProvider.tsx, pas les fichiers de mon diff — hors scope. » | Le fichier touché par la review n'a pas à être dans le diff pour que la règle s'applique. Si la PR en cours est déjà un follow-up, un nice-to-have trouvé n'importe où par la review se corrige dans la PR, il ne devient pas un nouveau follow-up sous prétexte qu'il vit ailleurs. |
+| « Ce comportement existait déjà avant la PR, ce n'est pas une régression que j'ai introduite. » | Préexistant ne veut pas dire hors périmètre de correction. La règle « pas de follow-up de follow-up » porte sur ce que la review trouve, pas sur qui l'a introduit. |
