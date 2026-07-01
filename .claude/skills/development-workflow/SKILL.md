@@ -21,11 +21,23 @@ défini par ce fichier stack — ne jamais supposer la stack, toujours la charge
 
 > Tous les `gh` passent par `~/.config/podclaude/gh.sh` (jamais `gh` nu).
 
+## Communication (REQUIRED — non négociable)
+
+Dès qu'un item est choisi en DISCOVER (PR ou issue), **l'annoncer à l'utilisateur
+avant toute action** — avant de lire le code, créer une branche/worktree ou committer.
+Un message court suffit : dépôt, numéro, titre, étape visée (REVIEW ou IMPLEMENT).
+Ne jamais enchaîner DISCOVER → IMPLEMENT en silence, même en mode autonome.
+
+**Violer la lettre de cette règle = violer son esprit.** Red flag STOP :
+« le workflow est déjà lancé, pas besoin de reconfirmer chaque item » —
+l'autonomie porte sur l'EXÉCUTION (pas de validation requise à chaque étape),
+PAS sur la visibilité : chaque item démarré doit être annoncé avant d'agir.
+
 ## The loop
 
 | Étape | Action |
 |---|---|
-| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. |
+| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. **Annoncer l'item choisi (voir Communication) avant de passer à l'étape suivante.** |
 | **REVIEW** | (a) PR à reviewer → worktree + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
 | **IMPLEMENT** | Worktree isolé, TDD, conventions de la stack chargée. |
 | **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant push : tests verts ET reviewers OK. |
