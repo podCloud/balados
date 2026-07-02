@@ -267,6 +267,8 @@ See individual CLAUDE.md files for project-specific rules.
 **Backend (balados.sync) - All Done:**
 - ✅ [#202](https://github.com/podCloud/balados.sync/issues/202) - `/api/v1/health` endpoint (PR #204)
 - ✅ [#203](https://github.com/podCloud/balados.sync/issues/203) - `/api/v1/auth/refresh` endpoint (PR #205)
+- ✅ [#197](https://github.com/podCloud/balados.sync/issues/197) - E2E UI testing with Wallaby (PR #198)
+- ✅ Follow-up issues from PR #238: [#239](https://github.com/podCloud/balados.sync/issues/239), [#240](https://github.com/podCloud/balados.sync/issues/240)
 
 **Frontend (balados.app) - All Done (merged to main):**
 - ✅ [#22](https://github.com/podCloud/balados.app/pull/22) - Sync client API (PR merged)
@@ -283,17 +285,22 @@ See individual CLAUDE.md files for project-specific rules.
 - ✅ Sync status indicator (PR #48)
 - ✅ Trending page (PR #49)
 - ✅ Enhanced show notes with markdown rendering (#52, PR #53)
-- ✅ Likes system with sync integration (PR #64) — follow-up: #65
+- ✅ Likes system with sync integration (PR #64), UI closed as duplicate (#63)
+- ✅ Atomic like/queue Dexie transactions (#65, PR #66)
 
 **Recent Backend Additions:**
 - ✅ Bounded context aggregate split - User aggregate → 4 aggregates (#148, PR #238)
-- ✅ Likes system - Like aggregate, LikeProjector, PopularityProjector, LikeController API (#154, PR #255) — follow-ups: #256, #257, #258, #259, #260
+- ✅ Likes system - Like aggregate, LikeProjector, PopularityProjector, LikeController API (#154, PR #255) — follow-ups: #256, #257, #258, #259, #260 (all closed)
+- ✅ Detailed listening history page (#200, PR #252) with async feed titles (#253, PR #254)
 
 ### Open Work
 
-**Backend (balados.sync):**
-- [PR #198](https://github.com/podCloud/balados.sync/pull/198) - E2E UI testing with Wallaby (#197)
-- Follow-up issues from PR #238: [#239](https://github.com/podCloud/balados.sync/issues/239), [#240](https://github.com/podCloud/balados.sync/issues/240)
+No open PRs in either repo as of 2026-07-02.
+
+**Frontend (balados.app):**
+- [#62](https://github.com/podCloud/balados.app/issues/62) - Listening history page with client-side filters (frontend counterpart to balados.sync's #200/PR #252)
+
+**Backend (balados.sync):** no active work — remaining open issues are longer-horizon discovery/social features not yet scheduled: [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
 
 See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
 
