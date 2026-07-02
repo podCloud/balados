@@ -287,6 +287,7 @@ See individual CLAUDE.md files for project-specific rules.
 - ✅ Enhanced show notes with markdown rendering (#52, PR #53)
 - ✅ Likes system with sync integration (PR #64), UI closed as duplicate (#63)
 - ✅ Atomic like/queue Dexie transactions (#65, PR #66)
+- ✅ Listening history page — filters, stats, streak, pagination (#62, PR #67)
 
 **Recent Backend Additions:**
 - ✅ Bounded context aggregate split - User aggregate → 4 aggregates (#148, PR #238)
@@ -297,8 +298,7 @@ See individual CLAUDE.md files for project-specific rules.
 
 No open PRs in either repo as of 2026-07-02.
 
-**Frontend (balados.app):**
-- [#62](https://github.com/podCloud/balados.app/issues/62) - Listening history page with client-side filters (frontend counterpart to balados.sync's #200/PR #252)
+**Frontend (balados.app):** none — the entire tracked backlog (including #62, listening history) is now shipped.
 
 **Backend (balados.sync):** no active work — remaining open issues are longer-horizon discovery/social features not yet scheduled: [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
 
