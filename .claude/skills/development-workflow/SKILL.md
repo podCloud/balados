@@ -29,7 +29,7 @@ défini par ce fichier stack — ne jamais supposer la stack, toujours la charge
 | **REVIEW** | (a) PR à reviewer → worktree + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
 | **IMPLEMENT** | Worktree isolé, TDD, conventions de la stack chargée. |
 | **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant push : tests verts ET reviewers OK. |
-| **COMMIT** | Commit (author Claude), push, PR **sans label** : `~/.config/podclaude/gh.sh pr create ...`. Si prête à merger : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`. |
+| **COMMIT** | Commit (author Claude), push, PR **sans label** : `~/.config/podclaude/gh.sh pr create ...`. Si prête à merger : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`, **puis** synchroniser et mettre à jour la doc racine (voir `references/merge-rules.md#post-merge-doc-sync`) avant de reboucler. |
 | **LOOP** | Revenir à DISCOVER tant que la file n'est pas vide (voir `references/stop-conditions.md`). |
 
 ## Triage (état réel, sans label)

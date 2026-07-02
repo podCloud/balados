@@ -41,6 +41,32 @@ sur un bug préexistant (pas une régression introduite par la PR) : « ce n'est
 dans mon diff » et « c'était déjà comme ça avant » ne sont pas des motifs pour
 retomber sur un follow-up quand la PR en cours est déjà un follow-up.
 
+## Post-merge doc sync
+
+Dernière action d'un item qui se termine par un merge (ou par la fermeture
+d'une issue devenue obsolète/doublon) — **avant** de reboucler sur DISCOVER :
+
+1. Se placer dans le repo racine `balados/` (le superprojet qui contient les
+   submodules `balados.app` et `balados.sync`).
+2. Synchroniser : `git fetch origin main`, mettre à jour le checkout local
+   (et les pointeurs de submodule si le merge a fait avancer `balados.app`
+   ou `balados.sync`).
+3. Vérifier l'état réel de **tout le projet**, pas seulement l'item qu'on
+   vient de traiter : PR ouvertes/récemment mergées et issues ouvertes/
+   récemment fermées sur `balados.app` ET `balados.sync` (`gh pr list`,
+   `gh issue list`, avec `--repo` pour chaque submodule).
+4. Mettre à jour `balados/CLAUDE.md` (racine — principalement la section
+   « Current Work ») pour refléter cet état réel : déplacer vers
+   « Completed » ce qui est mergé/fermé, retirer les entrées obsolètes,
+   corriger la liste « Open Work » avec le backlog effectivement ouvert.
+5. Commit + push directement sur `main` du superprojet — une mise à jour de
+   documentation racine est une des exceptions au « jamais de commit direct
+   sur main » (voir `balados.app/CLAUDE.md` § RÈGLES CRITIQUES).
+
+Ce n'est pas une étape à faire « à un moment » dans la boucle : c'est la
+dernière chose qu'on fait pour un item avant de reboucler, à chaque fois
+qu'un merge (ou une fermeture d'issue) change l'état réel du projet.
+
 ## Bulletproofing
 
 **Violer la lettre des règles de merge = violer leur esprit.**
@@ -53,6 +79,7 @@ retomber sur un follow-up quand la PR en cours est déjà un follow-up.
 - « ça ne débloque pas le ship »
 - « ce n'est pas dans le diff de cette PR »
 - « c'est préexistant, pas une régression de cette PR »
+- « je synchroniserai la doc racine plus tard / au prochain item »
 
 | Excuse | Réalité |
 |--------|---------|
@@ -64,3 +91,4 @@ retomber sur un follow-up quand la PR en cours est déjà un follow-up.
 | « The math: Feature works. Tests pass. Sprint deadline is now. » | La deadline ne change pas la gate. Tests verts + feature OK n'autorisent pas à sauter le tracking des remarques restantes. |
 | « Ce finding touche PlayerProvider.tsx, pas les fichiers de mon diff — hors scope. » | Le fichier touché par la review n'a pas à être dans le diff pour que la règle s'applique. Si la PR en cours est déjà un follow-up, un nice-to-have trouvé n'importe où par la review se corrige dans la PR, il ne devient pas un nouveau follow-up sous prétexte qu'il vit ailleurs. |
 | « Ce comportement existait déjà avant la PR, ce n'est pas une régression que j'ai introduite. » | Préexistant ne veut pas dire hors périmètre de correction. La règle « pas de follow-up de follow-up » porte sur ce que la review trouve, pas sur qui l'a introduit. |
+| « La doc racine, je la mettrai à jour groupée plus tard, ça ira plus vite. » | Groupée = jamais faite. Chaque merge qui change l'état réel du projet doit se refléter dans `CLAUDE.md` avant de reboucler, pas dans un futur batch hypothétique. |
