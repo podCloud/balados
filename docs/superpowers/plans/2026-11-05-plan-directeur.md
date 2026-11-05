@@ -1,0 +1,349 @@
+# Plan directeur Balados — novembre 2026
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+>
+> Version de référence éditable : https://claude.ai/artifact/2ozSDUAisi7wP8K2rw3Cr1 (Claude Docs). Ce fichier en est la copie dans le dépôt ; tenir les deux à jour.
+
+**Goal:** Fermer les dettes connues (sécurité, dépendances, hygiène), puis rouvrir le développement produit sur #262 et #263.
+
+**Architecture:** Chaque phase se découpe en tâches exécutables par le skill `development-workflow` : une issue GitHub par tâche, branche `feature/issue-N-slug`, TDD, revue locale adversariale, merge sans relecture humaine. Les tâches donnent fichiers, signatures et tests exacts ; l'exécutant écrit le corps.
+
+**Tech Stack:** balados.app : React 19, Vite 7, TypeScript 5.9, Vitest 4, Dexie 4, Workbox 7. balados.sync : Elixir umbrella (core, projections, web, jobs), Phoenix 1.7.21, LiveView 0.20.17, Commanded 1.4, EventStore 1.4, Hammer 6, Cachex 3.
+
+**Spec:** état des lieux du 2026-11-05 (deux dépôts verts : app 429 tests, sync 890 tests ; à jour avec origin ; aucune PR ouverte ; dormants depuis le 2026-07-02). Sources : `balados.sync/TODOS.md` (spec proxy hardening), `balados.app/docs/ROADMAP.md` §4.6, issues podCloud/balados.sync#262 et #263, sorties de `npm audit`, `npm outdated`, `mix hex.outdated`.
+
+## Global Constraints
+
+- Jamais de code directement sur `main` : branche `feature/issue-<n>-<slug>`, commits conventionnels, auteur `Claude <noreply@anthropic.com>`.
+- Toute PR passe la revue locale ; aucune remarque n'est ignorée (fix dans la PR ou issue de suivi, jamais de suivi de suivi).
+- Claim lock : commenter l'issue ou la PR avant de commencer.
+- Encodage des identifiants RSS : base64 URL-safe sans padding, décodage `lastIndexOf(",")` côté item.
+- Doc et code dans le même commit : `docs/`, `CLAUDE.md`, `TODOS.md` se mettent à jour avec la feature.
+- Tests verts avant chaque commit : `npm run build && npx vitest run` côté app, `mix test --exclude wallaby` côté sync.
+
+## Review Focus
+
+1. **Refresh concurrent (1.3).** Dix 401 simultanés ne doivent déclencher qu'un refresh en vol. Test `proxyManager.test.ts` : deux `fetchWithProxy` concurrents sur 401, `tryRefresh` appelé une fois, les deux rejouées avec le nouveau token.
+2. **Quota partagé entre appareils (1.2).** Rate limit par `user_id` : 60 requêtes avec `device_id` A puis une avec `device_id` B du même user donnent 429 avec `retry-after`. Si trop bas, passer `limit` à 120 dans la même PR.
+3. **429 du proxy côté app (1.3).** Sur 429, `fetchWithProxy` lève `SyncProxyRateLimitError` portant `retryAfterSeconds`, sans appel aux proxies publics.
+4. **Service Worker et token rafraîchi (1.3).** Après mise à jour de `syncToken` en IndexedDB, la requête suivante du SW porte le nouveau Bearer.
+5. **Show notes après DOMPurify 3.4 (1.1).** Une description avec `<a href target="_blank" rel="noopener">` et `<script>` rend le lien avec ses attributs et aucun script.
+
+---
+
+## Phase 1 — Court terme, sans débat
+
+Trois correctifs de sécurité indépendants, une PR chacun. Ordre de merge : 1.1 n'importe quand ; 1.3 avant 1.2 si possible, pour que les clients déployés gèrent le 401 le jour où le serveur l'exige.
+
+### Task 1.1: Bump DOMPurify (balados.app)
+
+`npm audit` remonte une faille high sur dompurify 3.3.1, corrigée en 3.4.17. Seul `src/components/player/EpisodePlayer.tsx` l'utilise.
+
+**Files:** Modify `package.json`, `package-lock.json`. Test `src/components/player/EpisodePlayer.test.tsx`.
+
+- [ ] Créer l'issue `fix: bump dompurify to 3.4.17 (npm audit high)`, claim lock, branche `feature/issue-N-bump-dompurify`.
+- [ ] Écrire le test Review Focus 5 (lien `target="_blank"` conservé, `<script>` retiré) ; `npx vitest run src/components/player` : attendu vert déjà (régression protégée).
+- [ ] `npm install dompurify@^3.4.17` ; `grep '"dompurify"' package.json` affiche `^3.4.17`.
+- [ ] `npm audit --omit=dev` : attendu `found 0 vulnerabilities`.
+- [ ] `npm run build && npx vitest run` : attendu build OK, 430 tests verts.
+- [ ] Commit `fix(deps): bump dompurify to 3.4.17 for GHSA advisories`, PR, revue locale, merge.
+
+### Task 1.2: Fermer l'open proxy RSS, Phase A (balados.sync)
+
+Le scope `/api/v1/rss` passe par le pipeline `:rss_api` (un simple `accepts`). Le proxy est public et ignore le JWT que l'app envoie déjà. On enforce JWT et rate limit par utilisateur au niveau du contrôleur, sur le modèle de `LikeController`.
+
+**Files:**
+- Modify `apps/balados_sync_web/lib/balados_sync_web/controllers/rss_proxy_controller.ex` (plugs en tête de module)
+- Modify `apps/balados_sync_web/test/balados_sync_web/controllers/rss_proxy_controller_test.exs`
+- Modify `TODOS.md` (cocher Phase A), `docs/FEATURES.md`, `docs/technical/AUTH_SYSTEM.md`
+- Ne pas toucher : `RssCache`, `UrlValidator`, décodage base64, header `cache-control`.
+
+**Interfaces:**
+- Consumes `BaladosSyncWeb.Plugs.JWTAuth` (`scopes_any`), `BaladosSyncWeb.Plugs.RateLimiter` (`limit`, `window_ms`, `key: :user_id`, `namespace`), `JwtTestHelper.authenticate_conn(conn, user_id, scopes: [...])`.
+- Produces : `GET /api/v1/rss/proxy/*` répond 401 sans JWT, 429 au-delà de 60 req/min/user.
+
+- [ ] Issue `security: enforce JWT and per-user rate limit on RSS proxy (TODOS Phase A)` avec la section Phase A de `TODOS.md`. Claim lock, branche `feature/issue-N-rss-proxy-jwt`.
+- [ ] Vérifier dans `balados.app/src` quels scopes l'app demande à l'autorisation. Si aucun ne couvre le proxy, ajouter le scope côté app dans la tâche 1.3 avant de merger celle-ci.
+- [ ] Tests qui échouent, nouveau `describe "authentication"` :
+
+```elixir
+test "returns 401 without JWT", %{conn: conn} do
+  conn = get(conn, "/api/v1/rss/proxy/#{encode_feed("https://example.com/feed.xml")}")
+  assert json_response(conn, 401)
+end
+
+test "returns 401 with JWT lacking a sync or subscriptions scope", %{conn: conn} do
+  conn =
+    conn
+    |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.likes.read"])
+    |> get("/api/v1/rss/proxy/#{encode_feed("https://example.com/feed.xml")}")
+  assert json_response(conn, 401)
+end
+
+test "proceeds past auth with user.sync scope", %{conn: conn} do
+  conn =
+    conn
+    |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+    |> get("/api/v1/rss/proxy/#{encode_feed("https://example.com/nonexistent-feed.xml")}")
+  assert json_response(conn, 502)["error"] == "BAD_GATEWAY"
+end
+
+test "returns 429 after 60 requests in a minute", %{conn: conn} do
+  authed = JwtTestHelper.authenticate_conn(conn, user_id, scopes: ["user.sync"])
+  path = "/api/v1/rss/proxy/#{encode_feed("https://example.com/nonexistent-feed.xml")}"
+  for _ <- 1..60, do: get(authed, path)
+  conn = get(authed, path)
+  assert json_response(conn, 429)
+  assert get_resp_header(conn, "retry-after") != []
+end
+
+test "quota is shared across devices of the same user", %{conn: conn} do
+  # 60 requêtes avec device_id A, puis une avec device_id B du même user_id -> 429
+end
+```
+
+- [ ] `mix test apps/balados_sync_web/test/balados_sync_web/controllers/rss_proxy_controller_test.exs` : attendu nouveaux tests en échec.
+- [ ] Ajouter en tête de `RssProxyController`, après `use BaladosSyncWeb, :controller` :
+
+```elixir
+plug BaladosSyncWeb.Plugs.JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"]
+plug BaladosSyncWeb.Plugs.RateLimiter,
+  limit: 60, window_ms: 60_000, key: :user_id, namespace: "rss_proxy"
+```
+
+- [ ] Passer les tests existants du fichier par `authenticate_conn(user_id, scopes: ["user.sync"])` dans le `setup`.
+- [ ] Fichier de test vert, puis `mix test --exclude wallaby` : 0 échec.
+- [ ] Cocher Phase A dans `TODOS.md` ; documenter JWT requis (scopes `user.sync` ou `user.subscriptions.read`) et quota 60/min/user dans `docs/FEATURES.md` et `docs/technical/AUTH_SYSTEM.md`.
+- [ ] Commit `fix(security): require JWT and rate limit RSS proxy (Closes #N)`, PR, revue locale, merge.
+
+### Task 1.3: Gestion du 401 du proxy serveur (balados.app)
+
+`fetchWithProxy` (`src/services/rss/proxyManager.ts`) traite un 401 du serveur comme tout échec et retombe en silence sur les proxies publics. Après 1.2, un token expiré ferait fuir tous les flux vers AllOrigins. On distingue 401 (refresh via `SyncClient`, sinon erreur typée affichée « reconnexion requise », jamais de fallback public) et 429 (erreur typée avec `retryAfterSeconds`, pas de fallback public).
+
+**Files:**
+- Modify `src/services/rss/proxyManager.ts`, `src/services/rss/proxyManager.test.ts`
+- Modify `src/services/sync/client.ts` (point d'entrée public de refresh, dédupliqué)
+- Modify `src/hooks/useSync.ts` ou le composant d'état de sync (surfacer l'erreur)
+- Modify `src/workers/sw.ts` + ses tests (relire le token après refresh)
+- Modify `docs/ROADMAP.md` §4.6 (cocher Phase A), `docs/SYNC.md`
+
+**Interfaces:**
+- Produces dans `proxyManager.ts` : `export class SyncProxyAuthError extends Error { readonly status = 401 }` et `export class SyncProxyRateLimitError extends Error { readonly status = 429; readonly retryAfterSeconds: number }`.
+- Produces dans `client.ts` : `async tryRefresh(): Promise<boolean>` (wrapper public de `refreshAccessToken`, une seule promesse en vol partagée entre appelants concurrents).
+- Contrat : sur 401, `fetchWithProxy` appelle `tryRefresh()` une fois ; succès → rejoue la requête serveur avec le nouveau token (relu via `getSettings()`) ; échec → lève `SyncProxyAuthError` sans proxies publics. Sur 429 → `SyncProxyRateLimitError`. Autres non-ok et erreurs réseau : cascade actuelle vers les proxies publics.
+
+- [ ] Issue `fix: handle 401/429 from sync server RSS proxy (refresh or re-auth, no silent public fallback)`. Claim lock, branche `feature/issue-N-proxy-401`.
+- [ ] Tests qui échouent dans `proxyManager.test.ts`, avec les mocks `fetch` déjà en place :
+
+```ts
+it("throws SyncProxyAuthError on 401 and does not call public proxies", async () => {
+  await expect(fetchWithProxy(FEED_URL)).rejects.toBeInstanceOf(SyncProxyAuthError);
+  expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("allorigins"), expect.anything());
+});
+
+it("retries sync proxy once with the refreshed token after a 401", async () => {
+  const result = await fetchWithProxy(FEED_URL);
+  expect(result.proxyUsed).toBe("Sync Server");
+  expect(fetchMock.mock.calls.at(-1)?.[1]?.headers).toMatchObject({ Authorization: "Bearer new-token" });
+});
+
+it("dedupes concurrent refreshes", async () => {
+  await Promise.all([fetchWithProxy(FEED_A), fetchWithProxy(FEED_B)]);
+  expect(tryRefreshMock).toHaveBeenCalledTimes(1);
+});
+
+it("throws SyncProxyRateLimitError with retryAfterSeconds on 429", async () => {
+  await expect(fetchWithProxy(FEED_URL)).rejects.toMatchObject({ status: 429, retryAfterSeconds: 30 });
+});
+
+it("still falls back to public proxies on a 500 from the sync proxy", async () => {
+  expect((await fetchWithProxy(FEED_URL)).proxyUsed).toBe("AllOrigins");
+});
+```
+
+- [ ] `npx vitest run src/services/rss/proxyManager.test.ts` : attendu nouveaux tests en échec.
+- [ ] Implémenter les deux classes d'erreur et les branches 401/429 ; `tryRefresh()` dans `SyncClient` avec promesse partagée.
+- [ ] Test SW (Review Focus 4) : après mise à jour de `syncToken` en base, la requête suivante du SW porte le nouveau Bearer. Implémenter.
+- [ ] Dans la couche qui appelle `fetchWithProxy` (rafraîchissement des abonnements), attraper `SyncProxyAuthError` → état sync `error` avec message « Session expirée, reconnectez le serveur de sync » via l'affichage existant de `SyncStatusIcon` ; attraper `SyncProxyRateLimitError` → replanifier après `retryAfterSeconds`.
+- [ ] `npm run build && npx vitest run` : tout vert.
+- [ ] Cocher Phase A de `docs/ROADMAP.md` §4.6 ; décrire 401/429 dans `docs/SYNC.md`.
+- [ ] Commit `fix(sync): surface 401/429 from server RSS proxy instead of silent public fallback (Closes #N)`, PR, revue locale, merge.
+
+---
+
+## Phase 2 — Hygiène des dépôts et docs
+
+Sans PR de code. Parallélisable avec la Phase 1 par un agent sur le dépôt racine, jamais pendant qu'un autre agent travaille dans le même sous-module.
+
+### Task 2.1: Nettoyage git
+
+- [ ] balados.app : pour chacun des 7 worktrees `worktree-agent-*` (commit 0393199), `git -C <chemin> status --short` : attendu vide.
+- [ ] `git worktree remove --force <chemin>` puis `git branch -D worktree-agent-<id>` pour chacun ; `git worktree list` n'affiche plus que main.
+- [ ] balados.app : `git branch -d` sur `feature/issue-58-migrate-to-biome`, `feature/issue-60-eslint-biome-coverage-doc`, `feature/issue-62-listening-history` (si refus, `git log main..<branche>` avant tout `-D`).
+- [ ] balados.app : supprimer `origin/feature/issue-62-listening-history` (mergée par PR #67).
+- [ ] balados.sync : supprimer la branche locale `feature/likes-followups-256-257-260` (PR #261).
+- [ ] balados.sync : pour chacune des 11 branches distantes hors main, `git log origin/main..origin/<branche>` ; si vide, `git push origin --delete <branche>` ; sinon lister les commits dans une issue de suivi.
+- [ ] Supprimer `balados.sync/erl_crash.dump` (13 Mo, février 2026, gitignoré).
+- [ ] `git branch -a` dans les deux sous-modules : main plus les seules branches non mergées.
+
+### Task 2.2: Rafraîchir les docs racine
+
+**Files:** `CLAUDE.md` (racine, Current Work), `docs/INTEGRATION_STATUS.md`, `docs/ROADMAP.md`.
+
+- [ ] `docs/ROADMAP.md` : `Last updated` du jour ; Phase « Sécurité et dette » reprenant 1.1 à 1.3 et la Phase 3 avec numéros d'issue ; #262 et #263 dans discovery.
+- [ ] `docs/INTEGRATION_STATUS.md` : proxy RSS « JWT requis depuis PR #N » ; ligne « Open proxy fermé » dans l'historique.
+- [ ] `CLAUDE.md` racine : remplacer « Open Work » par l'état réel (lien vers ce plan, issues ouvertes dont #262 et #263) ; remplacer la date du 2 juillet.
+- [ ] Commit direct sur main (docs uniquement) : `docs: refresh root status docs after security fixes and link master plan`.
+- [ ] Tenir ce fichier à jour à chaque phase terminée (miroir du Claude Doc).
+
+---
+
+## Phase 3 — Mises à jour de dépendances
+
+Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, gettext 1.0, httpoison 3), une dizaine côté frontend. Aucun dépôt n'exécute ses tests en CI (seul `claude.yml`). Filet d'abord, puis une majeure par PR, mineures groupées.
+
+### Task 3.0: Filet de sécurité : tests en CI et versions pinnées
+
+**Files:** Create `balados.sync/.github/workflows/test.yml`, `balados.sync/.tool-versions`, `balados.app/.github/workflows/test.yml`, `balados.app/.nvmrc`.
+
+- [ ] balados.sync : `.tool-versions` avec `elixir 1.20.1-otp-28` et `erlang 28.5.0.2` (installés via asdf localement). `mix deps.get && mix compile --warnings-as-errors && mix test --exclude wallaby` : 0 échec. Si OTP 28 bloque, retomber sur `1.16.3` / `26.0.2` et noter le blocage dans l'issue.
+- [ ] balados.sync : `test.yml` sur `pull_request` et `push` main : service postgres 16, `erlef/setup-beam` lisant `.tool-versions`, cache deps/`_build`, `mix db.create`, `mix db.init`, `mix test --exclude wallaby`. Vert sur la PR.
+- [ ] balados.app : `.nvmrc` = `24` ; `test.yml` : `npm ci`, `npm run lint`, `npm run build`, `npx vitest run`. Vert sur la PR.
+- [ ] Documenter les workflows dans le `CLAUDE.md` de chaque sous-module. Une PR par dépôt.
+
+### Task 3.1: Backend, mineures sans risque
+
+- [ ] `mix deps.update bandit commanded eventstore ecto_sql postgrex finch floki jason joken joken_jwks phoenix_html phoenix_live_reload phoenix_pubsub swoosh telemetry_metrics stream_data wallaby ex_doc esbuild tailwind`.
+- [ ] `mix compile --warnings-as-errors` puis `mix test --exclude wallaby` : 890 tests, 0 échec.
+- [ ] `mix test --only wallaby` (phoenix_html 4.4 touche le rendu) : 0 échec sur 7.
+- [ ] Commit `chore(deps): update minor backend dependencies`, PR, merge.
+
+### Task 3.2: Backend, majeures hors Phoenix (une PR chacune)
+
+| Lib | De | Vers | Usage | Point d'attention |
+| --- | --- | --- | --- | --- |
+| gettext | 0.26 | 1.0 | `gettext.ex` + `use Gettext, backend:` | Déjà la forme `backend:`, migration quasi vide |
+| hammer | 6.2 | 7.5 | `plugs/rate_limiter.ex` + 1 fichier | Backend ETS déclaré comme module, `check_rate/3` → `hit/3` |
+| httpoison | 2.3 | 3.0 | 3 fichiers (RssCache, UrlValidator, ownership) | Candidat au remplacement par `Req`/`Finch` ; décider dans la PR |
+| timex | 3.7 | 4.0 | 1 fichier | Vérifier si `DateTime`/`Calendar` natifs suffisent, supprimer la dep |
+| cachex | 3.6 | 4.1 | 2 fichiers (RssCache) | Options renommées (`expiration:` → `expire:`) |
+| dns_cluster | 0.1 | 0.3 | config release | Suivre la doc Phoenix 1.8 |
+
+- [ ] Pour chaque ligne : issue `chore(deps): upgrade <lib> to <version>`, branche, contrainte dans le `mix.exs` concerné, `mix deps.update <lib>`, corriger, `mix test --exclude wallaby` vert, PR.
+- [ ] Hammer : test dans `rate_limiter_test.exs` (créer si absent) : 2 requêtes avec `limit: 1` donnent 200 puis 429 avec `retry-after`.
+
+### Task 3.3: Phoenix 1.8 et LiveView 1.x
+
+LiveView 0.20 → 1.2 change `live_patch`/`live_redirect` (8 occurrences), `phx-feedback-for`, `core_components` et les formulaires. 5 LiveViews concernées, plus les 37 tests LiveView déjà cassés une fois (#246).
+
+- [ ] Issue `chore(deps): upgrade to Phoenix 1.8 and LiveView 1.2`, branche ; générer un projet Phoenix 1.8 vierge dans le scratchpad pour diff `core_components.ex`, `router.ex`, `endpoint.ex`, `app.js`, config esbuild/tailwind.
+- [ ] Étape 1, LiveView 1.0 seul (Phoenix 1.7 l'accepte) : `~> 1.0`, `<.link patch/navigate>` à la place de `live_patch`/`live_redirect`, `used_input?/1` à la place de `phx-feedback-for`. Tests verts, commit.
+- [ ] Étape 2, Phoenix 1.8 : `~> 1.8`, `phoenix_live_dashboard ~> 0.9`, aligner `core_components.ex` sur le diff en gardant les composants maison, layout racine (`Layouts.app` composant fonction). `mix test --exclude wallaby` et `--only wallaby` verts, commit.
+- [ ] Étape 3, LiveView 1.2 : `~> 1.2`, changelog, `mix compile --warnings-as-errors` propre.
+- [ ] `docs/technical/ARCHITECTURE.md` (versions) et `CLAUDE.md` du sous-module. PR, revue locale (demander une revue des templates), merge.
+
+### Task 3.4: Frontend, mineures groupées
+
+- [ ] `npm update && npm run lint && npm run build && npx vitest run` : tests verts, 0 avertissement Biome nouveau.
+- [ ] `npm run dev` : vérifier lecture d'un épisode, installation du SW, page Historique. Commit `chore(deps): update minor frontend dependencies`, PR, merge.
+
+### Task 3.5: Frontend, majeures (une PR chacune, dans cet ordre)
+
+| Lib | De | Vers | Point d'attention |
+| --- | --- | --- | --- |
+| @vitejs/plugin-react | 5 | 6 | Impact limité à `vite.config.ts` |
+| vite | 7 | 8 | Vérifier `vite-plugin-pwa` compatible avant ; `injectManifest` sur `src/workers/sw.ts` |
+| vite-plugin-pwa | 1 | 2 | `strategies: injectManifest`, `srcDir` ; retester le background sync |
+| vitest + coverage-v8 | 4 | 5 | API des mocks ; suite complète |
+| i18next + react-i18next | 25/16 | 26/17 | 31 fichiers ; `compatibilityJSON`, pluriels |
+| lucide-react | 0.562 | 1.x | 20 fichiers ; icônes renommées, la compilation les trouve |
+| marked | 17 | 18 | `EpisodePlayer.tsx` seul ; retester les show notes avec DOMPurify |
+| jsdom, jest-dom | 27/6 | 29/7 | Tests uniquement |
+| typescript | 5.9 | 7.0 | En dernier, seul : compilateur Go, `tsc -b` et `verbatimModuleSyntax` à revalider ; si Biome ou Vite ne suivent pas, rester en 5.9 et noter la date de réessai |
+
+- [ ] Pour chaque ligne : issue, branche, `npm install <lib>@<majeure>`, `npm run lint && npm run build && npx vitest run` vert, vérification navigateur quand indiqué, PR, merge.
+- [ ] Après la dernière : `npm outdated` ne liste plus que des mineures ; `npm audit --omit=dev` à 0 ; section Stack du `CLAUDE.md` du sous-module à jour.
+
+---
+
+## Phase 4 — Brainstorming et specs produit
+
+#262 et #263 sont des captures Discord, pas des specs. Chacune passe par `superpowers:brainstorming` avec Pof, produit un design doc, puis un plan séparé via `superpowers:writing-plans`. Ce plan fixe les questions à trancher et les livrables, pas les tâches de code.
+
+### Task 4.1: Spec des tags communautaires (#262)
+
+**Livrables :** `balados.sync/docs/superpowers/specs/2026-MM-DD-community-tags-design.md`, puis `docs/superpowers/plans/…-community-tags.md`, commentaire sur #262.
+
+Questions à trancher, dans l'ordre :
+
+1. **Agrégat** : Subscription existant (piggyback `Subscribe`) ou nouvel agrégat `PodcastTagging` par user/feed ? Recommandation : agrégat dédié, événement `TagsChanged {user_id, feed, added, removed, at}`.
+2. **Vocabulaire partagé** : table `tags` globale, slug normalisé (minuscules, sans accents, tirets) ; qui crée un tag, limite par jour.
+3. **Seuils** : 10 % des taggeurs ET > 25 taggeurs. Projections `podcast_tag_counts` (feed, tag, count) et `podcast_tagger_counts` (feed, total) ; visibilité calculée à la lecture.
+4. **Top 5 / top 20** : cache Cachex 5 min, `GET /api/v1/public/feed/:feed/tags` et `GET /api/v1/public/tags/top`.
+5. **Modération** : commande admin `HideTag`, `hidden_at` sur `tags`, exclusion de toutes les lectures publiques ; UI admin LiveView existante.
+6. **Sync app** : `TagSync {rss_source_feed, tags[], updated_at}` dans `POST /sync`, LWW sur `updated_at` pour la liste entière.
+7. **UI app** : fiche podcast, message explicatif, retrait de ses propres tags.
+
+- [ ] Brainstorming avec Pof, une question à la fois.
+- [ ] Design doc relu par Pof.
+- [ ] Plan d'implémentation : backend (agrégat, projections, API, admin) puis frontend (sync, UI).
+- [ ] Fermer #158 comme remplacée par #262, ou la garder pour les hashtags libres.
+
+### Task 4.2: Spec des réactions d'épisodes (#263)
+
+**Livrables :** même trio (design doc, plan, commentaire sur #263).
+
+1. **Agrégat** : `EpisodeReaction` par user/épisode, événement `ReactionsSet {user_id, feed, item, reactions[], at}` (liste complète, max 5). Recommandation : liste complète.
+2. **Set de réactions** : set par défaut (5 emojis à choisir avec Pof), set custom par flux revendiqué via `PodcastOwnershipClaim`, commande `SetFeedReactions {feed, reactions[]}` réservée au propriétaire vérifié. Sort des réactions existantes quand le set change.
+3. **Anonymat** : projections `episode_reaction_counts` (feed, item, reaction, count) et `episode_reaction_combos` (feed, item, combo_bitmask 1..31, count).
+4. **Pentagone** : calcul côté app à partir des 31 combos ; normalisation par épisode ; `GET /api/v1/public/episode/:item/reactions`.
+5. **Modération** : `HideReaction` global ou par flux, même forme que `HideTag` ; mutualiser l'admin.
+6. **Sync app** : `ReactionSync {rss_source_feed, rss_source_item, reactions[], updated_at}`.
+7. **Namespace RSS** `balados:reactions` : hors périmètre, annexe du design doc.
+
+- [ ] Brainstorming, design doc, plan, comme en 4.1.
+- [ ] Faire 4.1 avant 4.2 (modération et projections publiques posées une fois).
+
+### Task 4.3: Exécution
+
+- [ ] Issues d'implémentation depuis les plans (une par tâche), étiquetées, passées dans le `development-workflow`.
+- [ ] Mettre à jour ce document : lier design docs et plans, cocher.
+
+---
+
+## Phase 5 — Backlog non planifié
+
+Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 1 à 4.
+
+| Item | Dépôt | Nature | Prérequis | Note |
+| --- | --- | --- | --- | --- |
+| Proxy d'images HMAC, Phase B | sync + app | Privacy | 1.2 livrée | Design figé dans `TODOS.md` : `POST /api/v1/rss/sign`, URLs `?sig=` stables, audio jamais proxifié. App : regex cache images du SW, modal trackers au play |
+| #153 Playlists collaboratives | sync | Social | Aucun | Multi-contributeurs sur l'agrégat Playlist |
+| #155 Suivre d'autres utilisateurs | sync | Social | Modèle de confidentialité | Graphe social, timeline des suivis |
+| #158 Hashtags et topics | sync | Discovery | 4.1 | Probablement absorbée par #262 |
+| #201 Recommandations MinHash | sync | Discovery | Volume d'utilisateurs | Job périodique dans `balados_sync_jobs` |
+| Import OPML, recherche iTunes/PodcastIndex | app | Discovery | Aucun | `docs/ROADMAP.md` Phase 5 |
+| UI de gestion des proxies, logs de sync | app | Confort | Aucun | `docs/ROADMAP.md` Phases 1 et 4 |
+
+---
+
+## Suivi d'avancement
+
+| Tâche | Dépôt | Issue | PR | Statut |
+| --- | --- | --- | --- | --- |
+| 1.1 Bump DOMPurify | app | | | À faire |
+| 1.2 Proxy RSS : JWT + rate limit | sync | | | À faire |
+| 1.3 Gestion 401/429 du proxy | app | | | À faire |
+| 2.1 Nettoyage git | racine | | | À faire |
+| 2.2 Docs racine | racine | | | À faire |
+| 3.0 CI tests + versions pinnées | les deux | | | À faire |
+| 3.1 Backend mineures | sync | | | À faire |
+| 3.2 Backend majeures hors Phoenix | sync | | | À faire |
+| 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
+| 3.4 Frontend mineures | app | | | À faire |
+| 3.5 Frontend majeures | app | | | À faire |
+| 4.1 Spec tags communautaires #262 | sync | #262 | | À faire |
+| 4.2 Spec réactions #263 | sync | #263 | | À faire |
+| 4.3 Exécution des plans 4.x | les deux | | | À faire |
+
+Prochaine revue de ce plan : 2026-11-19.
