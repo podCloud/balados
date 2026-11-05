@@ -10,13 +10,23 @@ La review est faite par des **sous-agents reviewer dispatchés en contexte
 séparé**, jamais dans le contexte qui a écrit le code (un auteur ne casse pas
 son propre raisonnement).
 
-- Chaque reviewer travaille sur un **worktree** dédié de la branche
-  (`superpowers:using-git-worktrees`), pour pouvoir inspecter, builder et tester
-  le code sans polluer l'espace de travail principal.
+- Chaque reviewer travaille sur un **worktree détaché** de la PR :
+  `git worktree add --detach .worktrees/review-<pr>-<n> origin/<branche>` dans le
+  sous-module (`.worktrees/` est gitignoré dans les deux). Il peut y builder et
+  tester sans toucher l'espace de travail principal ni la branche de l'auteur.
+- **Les dépendances du worktree sont les siennes** : `npm ci` (app) ou
+  `mix deps.get` (sync) dans le worktree. Un `node_modules` symlinké depuis le
+  checkout principal fait tester une autre version des dépendances (vu sur PR #69
+  : DOMPurify 3.3.1 au lieu de 3.4.17).
+- Le prompt du reviewer part du gabarit `superpowers:requesting-code-review`
+  (`code-reviewer.md`) : description, exigences (issue + plan), `BASE_SHA`,
+  `HEAD_SHA`, la section « Review Focus » du plan si la tâche en a une, et les
+  `Ruling:` du ledger. Modèle le plus capable disponible, précisé explicitement.
 - Chaque reviewer est **prompté pour réfuter / casser le code, pas pour
   l'approuver**. Sa mission : trouver le bug, la régression, le cas limite non
   géré, l'hypothèse fausse. Un reviewer qui « ne trouve rien » doit le justifier,
   pas se contenter d'un pouce levé.
+- Le reviewer reçoit un contexte rédigé, **jamais** l'historique de la session.
 
 ### Échelle du nombre de reviewers
 
@@ -28,6 +38,10 @@ son propre raisonnement).
 | ≤ 600 lignes   | 3         |
 | > 600 lignes   | 4         |
 
+Les reviewers sont dispatchés **en parallèle** (`superpowers:dispatching-parallel-agents`),
+chacun avec un angle distinct (sécurité, concurrence/états, contrat API et doc,
+tests et cas limites).
+
 ### Agrégation par vote
 
 Les verdicts des reviewers sont **agrégés par vote**. Chaque remarque est
@@ -37,6 +51,10 @@ catégorisée :
 - `should-fix` — défaut réel à corriger : bloque le merge.
 - `nice-to-have` — amélioration optionnelle : ne bloque pas, mais doit être
   tracée (voir `merge-rules.md`).
+
+Une remarque techniquement fausse se réfute **avec preuve** (test, extrait de
+code) dans le commentaire de PR, via `superpowers:receiving-code-review` ; elle ne
+disparaît pas en silence.
 
 ## Post the review
 
@@ -48,7 +66,19 @@ externe partagée entre les boucles et les workers :
 ```
 
 Aucun label, aucun déclenchement CI, aucune review GitHub formelle : juste un
-commentaire de PR lisible qui liste les `must-fix` / `should-fix` / `nice-to-have`.
+commentaire de PR lisible qui liste les `must-fix` / `should-fix` / `nice-to-have`,
+avec le `HEAD_SHA` reviewé (c'est lui que le triage compare aux commits suivants).
+
+## Re-review
+
+Après chaque push de corrections : nouveau round complet (mêmes règles de
+nombre, worktrees recréés sur le nouveau HEAD, reviewers frais). Le round est
+clean quand aucun must-fix/should-fix ne reste et que chaque nice-to-have est
+fixé ou tracé. Trois rounds infructueux sur la même PR → `stop-conditions.md`.
+
+Avant chaque commit de correction, relire `git diff <base> -- <fichier>` des
+fichiers touchés : un hook de formatage (voir le stack sync) peut réintroduire un
+diff que le round précédent avait fait retirer.
 
 ## Claim lock — comment AVANT de travailler
 
@@ -64,7 +94,8 @@ repo), même si ce fichier d'instructions reste en français pour l'instant.
 
 Le verrou sur issue s'applique dès DISCOVER, avant toute lecture de code ou
 création de branche/worktree — pas seulement avant l'étape REVIEW d'une PR déjà
-ouverte.
+ouverte. Une tâche du plan directeur sans issue : créer l'issue, puis poser le
+verrou dessus.
 
 **Violer la lettre de cette règle = violer son esprit.**
 
@@ -84,3 +115,4 @@ Tous signifient : commenter D'ABORD, travailler ENSUITE.
 | « No breaking changes — All existing behavior preserved » | « Pas de casse » ne protège pas du conflit de claim. Le verrou existe pour la coordination, pas pour la sûreté du code. |
 | « Next Steps If This Were Real Implementation: 1. Create feature branch 2. Add the cleanup effect 3. Run npm test 4. Push and create PR » | Un plan sans étape de claim est un plan cassé. L'étape 0 manquante est : commenter la PR pour poser le verrou. |
 | « This is a textbook 'stale ref' bug... The fix is straightforward and defensive. » | La confiance dans le diagnostic n'autorise pas à sauter le verrou. Des commits récents + aucun claim = un autre worker est peut-être actif : commenter d'abord. |
+| « Le worktree de review peut réutiliser le node_modules du checkout principal » | Il testerait d'autres versions que celles de la PR. Chaque worktree installe ses dépendances. |

@@ -190,11 +190,12 @@ Sans PR de code. Parallélisable avec la Phase 1 par un agent sur le dépôt rac
 
 **Files:** `CLAUDE.md` (racine, Current Work), `docs/INTEGRATION_STATUS.md`, `docs/ROADMAP.md`.
 
-- [ ] `docs/ROADMAP.md` : `Last updated` du jour ; Phase « Sécurité et dette » reprenant 1.1 à 1.3 et la Phase 3 avec numéros d'issue ; #262 et #263 dans discovery.
-- [ ] `docs/INTEGRATION_STATUS.md` : proxy RSS « JWT requis depuis PR #N » ; ligne « Open proxy fermé » dans l'historique.
-- [ ] `CLAUDE.md` racine : remplacer « Open Work » par l'état réel (lien vers ce plan, issues ouvertes dont #262 et #263) ; remplacer la date du 2 juillet.
-- [ ] Commit direct sur main (docs uniquement) : `docs: refresh root status docs after security fixes and link master plan`.
-- [ ] Tenir ce fichier à jour à chaque phase terminée (miroir du Claude Doc).
+- [x] `docs/ROADMAP.md` : `Last updated` du jour ; Phase « Sécurité et dette » reprenant 1.1 à 1.3 et la Phase 3 avec numéros d'issue ; #262 et #263 dans discovery.
+- [x] `docs/INTEGRATION_STATUS.md` : proxy RSS « JWT requis depuis PR #265 » ; ligne « Open proxy fermé » dans l'historique.
+- [x] `CLAUDE.md` racine : remplacer « Open Work » par l'état réel (lien vers ce plan, issues ouvertes dont #262 et #263) ; remplacer la date du 2 juillet.
+- [x] Ajout (décision Pof 2026-11-05) : moderniser la skill `development-workflow` — plan directeur comme source de travail, worktrees de review détachés avec leurs propres dépendances, re-review, follow-ups et tests flaky, synchronisation du plan après merge ; `workflow-stack.md` des deux sous-modules enrichis des commandes exactes et des pièges connus (#272, #269, #266, #76) ; section workflow du `CLAUDE.md` de balados.sync condensée (7 phases obsolètes → renvoi à la skill), encodage et endpoints likes corrigés dans celui de balados.app.
+- [x] Commit direct sur main (docs uniquement) : `docs: refresh root status docs after security fixes and link master plan`.
+- [x] Tenir ce fichier à jour à chaque phase terminée (miroir du Claude Doc).
 
 ---
 
@@ -372,7 +373,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 1.2 Proxy RSS : JWT + rate limit | sync | #264 | #265 (mergée 2026-11-05) | Terminé — suivis #267 à #272 |
 | 1.3 Gestion 401/429 du proxy | app | #70 | #72 (mergée 2026-11-05) | Terminé — suivis #73 à #77 |
 | 2.1 Nettoyage git | racine | | | Terminé (2026-11-05) : 7 worktrees orphelins, 4 branches locales et 1 branche distante mergées supprimés, crash dump effacé |
-| 2.2 Docs racine | racine | | | À faire |
+| 2.2 Docs racine | racine | | | Terminé (2026-11-05) : ROADMAP, INTEGRATION_STATUS, CLAUDE.md racine, skill `development-workflow` modernisée, stacks et CLAUDE.md des sous-modules |
 | 3.0 CI tests + versions pinnées | les deux | | | À faire |
 | 3.1 Backend mineures | sync | | | À faire |
 | 3.2 Backend majeures hors Phoenix | sync | | | À faire |

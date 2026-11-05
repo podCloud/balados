@@ -1,6 +1,6 @@
 # Integration Status - balados.app ↔ balados.sync
 
-**Last updated:** 2026-02-20
+**Last updated:** 2026-11-05
 
 ---
 
@@ -10,7 +10,8 @@ The backend (`balados.sync`) has a complete API for synchronization including he
 
 **Phase 1 (Core Sync): ✅ Complete**
 **Phase 2 (Polish): ✅ Complete**
-**Overall Progress: ~95%** (Likes system shipped, remaining: error codes, playlist sync, WebSocket)
+**Security hardening (2026-11-05): ✅ Complete** — the RSS proxy is no longer an open proxy (see below).
+**Overall Progress: ~95%** (remaining: error codes, playlist sync, WebSocket; next up: CI + dependency upgrades, see [ROADMAP.md](ROADMAP.md))
 
 ---
 
@@ -28,7 +29,7 @@ The backend (`balados.sync`) has a complete API for synchronization including he
 | Record Play | `POST /api/v1/play` | ✅ Ready | |
 | Update Position | `PUT /api/v1/play/{item}/position` | ✅ Ready | |
 | Get Play Status | `GET /api/v1/play` | ✅ Ready | |
-| RSS Proxy | `GET /api/v1/rss/proxy/{feed}` | ✅ Ready | 5-min cache |
+| RSS Proxy | `GET /api/v1/rss/proxy/{feed}` | ✅ Ready | **JWT required since PR #265** (scope `user.sync` or `user.subscriptions.read`), 120 req/min/user, 429 + `Retry-After`, `Cache-Control: private, max-age=300`, CORS handled server-wide |
 | Trending | `GET /api/v1/public/trending/podcasts` | ✅ Ready | Public |
 | WebSocket Sync | `GET /api/v1/live` | ✅ Ready | Real-time |
 | Playlists API | `/api/v1/playlists/*` | ✅ Ready | Full CRUD |
@@ -62,6 +63,9 @@ The backend (`balados.sync`) has a complete API for synchronization including he
 | Trending Page | `explorer/Trending.tsx` | ✅ Complete | PR #49 |
 | Like Button | `ui/LikeButton.tsx` | ✅ Complete | PR #64 |
 | useLike Hook | `hooks/useLike.ts` | ✅ Complete | PR #64 |
+| Listening History | `components/history/` | ✅ Complete | Issue #62, PR #67 |
+| Show notes sanitizer | `utils/renderShowNotes.ts` | ✅ Complete | DOMPurify 3.4.17, Issue #68, PR #69 |
+| Proxy auth errors + circuit breaker | `rss/proxyManager.ts`, `sync/authEvents.ts` | ✅ Complete | 401/403/429 surfaced, `syncAuthExpired` flag, Issue #70, PR #72 |
 
 ---
 
@@ -127,6 +131,8 @@ Frontend                                    Backend
 2. ~~**No Sync UI**~~ → SyncSettings.tsx with status, connect/disconnect
 3. ~~**No Conflict Resolution**~~ → merger.ts with full test coverage
 4. ~~**No Health Endpoint**~~ → Backend now has `/api/v1/health`
+5. ~~**Open RSS proxy**~~ → Closed 2026-11-05: the proxy requires a JWT (sync #264, PR #265) and the app surfaces 401/403/429 instead of silently falling back to public proxies (app #70, PR #72)
+6. ~~**No CORS on the API**~~ → Server-wide CORS plug for `/api/*` with `Authorization` preflight (PR #265)
 
 ### Important (Should Fix)
 
@@ -135,20 +141,24 @@ Frontend                                    Backend
 5. ~~**No Background Sync**~~ → Done (PR #37)
 
 6. **Missing Error Codes**
-   - Backend returns error codes but frontend ignores them
+   - Backend returns error codes but frontend ignores them (auth and rate-limit errors are now handled since PR #72)
    - Should display user-friendly messages
+
+7. **Auth flow mismatch** (app #73)
+   - The app's popup opens `/authorize?redirect_uri=…&response_type=token`, the server expects `/authorize?token=<app JWT>` with a registered public key
+   - No refresh token is persisted; scheduled as master plan task 4.0 (third-party app contract)
 
 ### Nice to Have
 
-7. **No Playlist Sync**
+8. **No Playlist Sync**
    - Client has types but no implementation
    - Backend ready, frontend needs work
 
-8. **No Real-time Sync**
+9. **No Real-time Sync**
    - WebSocket endpoint exists on backend
    - Frontend doesn't connect to it
 
-9. ~~**No Sync Status Indicator**~~ → Done (PR #48)
+10. ~~**No Sync Status Indicator**~~ → Done (PR #48)
 
 ---
 
@@ -162,11 +172,11 @@ Frontend                                    Backend
 | Play status | `POST /api/v1/play` | `POST /api/v1/play` | ✅ |
 | Get play status | `GET /api/v1/play/{feed}/{item}` | `GET /api/v1/play` (list only) | ⚠️ |
 | Likes | `POST/DELETE/GET /api/v1/likes` | Same | ✅ |
-| RSS proxy | `GET /api/v1/rss/proxy/{feed}` | Same | ✅ |
+| RSS proxy | `GET /api/v1/rss/proxy/{feed}` + Bearer JWT | Same, 401/403/429 | ✅ |
 | Trending | `GET /api/v1/public/trending/podcasts` | Same | ✅ |
 | Token refresh | `POST /api/v1/auth/refresh` | `POST /api/v1/auth/refresh` | ✅ |
-| Base64 encoding | `btoa(feedUrl)` | Same | ✅ |
-| Episode encoding | `btoa(guid,enclosureUrl)` | Same | ✅ |
+| Base64 encoding | `encodeRssFeed(feedUrl)` (base64url, no padding) | `Base.url_decode64(padding: false)` with legacy fallback | ✅ |
+| Episode encoding | `encodeRssItem(guid, enclosureUrl)` | Same (last-comma split tracked in sync #267) | ✅ |
 | Timestamps | ISO 8601 | ISO 8601 | ✅ |
 
 ### Remaining Backend Gaps
@@ -248,13 +258,17 @@ src/
 3. ~~**Create merger.ts**~~ → Done
 4. ~~**Create useSync.ts hook**~~ → Done
 
-### Phase 2: Polish (Future)
+### Phase 2: Polish ✅
 
-5. **Integrate with proxyManager** - Use server proxy when connected
-6. **Add Service Worker background sync** - Process queue periodically
-7. **Implement WebSocket real-time sync** - Live updates
-8. **Add playlist sync** - Full CRUD
-9. **Add sync status indicator** - App header icon
+5. ~~**Integrate with proxyManager**~~ → Done (PR #34)
+6. ~~**Add Service Worker background sync**~~ → Done (PR #37)
+7. ~~**Add sync status indicator**~~ → Done (PR #48)
+
+### Next (see [ROADMAP.md](ROADMAP.md) and the master plan)
+
+8. **CI + dependency upgrades** (plan Phase 3)
+9. **Third-party app contract + PodCloud import** (plan Phase 4, app #73)
+10. **WebSocket real-time sync, playlist sync** (backlog)
 
 ---
 
@@ -268,5 +282,9 @@ src/
 | #28 | feat(stats): local statistics page | feature/issue-15-local-stats | ✅ Merged |
 | #31 | feat(events): snapshot system | feature/issue-30-event-snapshots | ✅ Merged |
 | #32 | feat(ui): in progress page | feature/issue-29-in-progress-page | ✅ Merged |
+| #67 | feat: listening history page | feature/issue-62-listening-history | ✅ Merged |
+| #69 | fix(security): bump DOMPurify, test renderShowNotes | feature/issue-68-dompurify | ✅ Merged 2026-11-05 |
+| #72 | fix(sync): surface proxy 401/403/429, circuit breaker | feature/issue-70-proxy-auth-errors | ✅ Merged 2026-11-05 |
+| sync #265 | feat(security): JWT + rate limit on RSS proxy, CORS plug | feature/issue-264-proxy-hardening | ✅ Merged 2026-11-05 |
 
 All sync functionality and recent features are on main.

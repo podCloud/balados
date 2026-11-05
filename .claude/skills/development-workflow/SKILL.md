@@ -1,6 +1,6 @@
 ---
 name: development-workflow
-description: Use when Pof says "continue le workflow", or asks to process / advance the dev backlog (open PRs and prioritized issues) autonomously.
+description: Use when Pof says "continue le workflow", or asks to process / advance the dev backlog (open PRs, prioritized issues, or the next task of the master plan) autonomously.
 ---
 
 # Development Workflow (Loop Engineering)
@@ -16,20 +16,30 @@ Avant toute implémentation ou review, déterminer le sous-module ciblé par l'i
 
     Read <sous-module>/.claude/workflow-stack.md
 
-Tout ce qui suit (commandes de test/lint/build, format de commit, patterns) est
+Tout ce qui suit (commandes de test/lint/build, format de commit, pièges connus) est
 défini par ce fichier stack — ne jamais supposer la stack, toujours la charger.
 
 > Tous les `gh` passent par `~/.config/podclaude/gh.sh` (jamais `gh` nu).
+
+## Sources de travail (par priorité)
+
+1. **PRs ouvertes** sur les deux dépôts (triage ci-dessous) — on finit avant de commencer.
+2. **Plan directeur** : `docs/superpowers/plans/<date>-plan-directeur.md` (dépôt racine).
+   La prochaine tâche non cochée de la phase en cours est l'item prioritaire. Une tâche
+   du plan devient une issue GitHub (si elle n'en a pas déjà une) avant toute implémentation.
+3. **Issues ouvertes** : `follow-up` et `bug` d'abord, puis `enhancement` par ancienneté.
+   Une issue `enhancement` sans spec (capture Discord, idée) passe par
+   `superpowers:brainstorming` avec Pof avant toute branche — on n'implémente pas une idée.
 
 ## The loop
 
 | Étape | Action |
 |---|---|
-| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list`. Trier les PRs ouvertes via Triage ci-dessous ; sinon prendre l'issue priorisée suivante. **Dès l'item choisi : poser le claim lock (`references/review-gate.md`) avant toute lecture de code / branche / commit — le verrou s'applique aux issues comme aux PR.** |
-| **REVIEW** | (a) PR à reviewer → worktree + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
-| **IMPLEMENT** | Worktree isolé, TDD, conventions de la stack chargée. |
-| **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant push : tests verts ET reviewers OK. |
-| **COMMIT** | Commit (author Claude), push, PR **sans label** : `~/.config/podclaude/gh.sh pr create ...`. Si prête à merger : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`, **puis** synchroniser et mettre à jour la doc racine (voir `references/merge-rules.md#post-merge-doc-sync`) avant de reboucler. |
+| **DISCOVER** | `~/.config/podclaude/gh.sh pr list` + `issue list` sur chaque dépôt, puis le plan directeur. Choisir l'item via les sources ci-dessus. **Dès l'item choisi : poser le claim lock (`references/review-gate.md`) avant toute lecture de code / branche / commit — le verrou s'applique aux issues comme aux PR.** |
+| **REVIEW** | (a) PR à reviewer → worktree détaché + sous-agents reviewers adversariaux (voir `references/review-gate.md`). (b) Retours à appliquer → fixer, puis re-review. |
+| **IMPLEMENT** | Worktree isolé (`.worktrees/` du sous-module), TDD, conventions de la stack chargée. Pour une tâche du plan directeur, suivre ses étapes et tenir le ledger `.superpowers/sdd/<plan>/progress.md` (racine, gitignoré). |
+| **VERIFY** | Lancer test/lint/build de la stack, PUIS review adversariale locale de son propre travail (`references/review-gate.md`). Gate vérifiable avant merge : tests verts ET reviewers OK ET chaque remarque fixée ou tracée. |
+| **COMMIT** | Commit (author Claude), push, PR **sans label** : `~/.config/podclaude/gh.sh pr create ...`. Si prête à merger : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`, **puis** synchroniser et mettre à jour la doc racine et le plan (voir `references/merge-rules.md#post-merge-doc-sync`) avant de reboucler. |
 | **LOOP** | Revenir à DISCOVER tant que la file n'est pas vide (voir `references/stop-conditions.md`). |
 
 ## Triage (état réel, sans label)
@@ -46,8 +56,10 @@ superpowers correspondante AVANT d'agir — ne jamais improviser l'équivalent �
 
 | Étape du loop | Skill superpowers à invoquer |
 |---|---|
+| Issue sans spec (feature, idée) | `superpowers:brainstorming` puis `superpowers:writing-plans` |
+| Exécution d'une tâche du plan directeur | `superpowers:executing-plans` (natif) ou `superpowers:subagent-driven-development` |
 | Isolation du travail (review ET implement) | `superpowers:using-git-worktrees` |
-| Dispatch des sous-agents (reviewer, fix) | `superpowers:subagent-driven-development` (ou `dispatching-parallel-agents` pour les N reviewers) |
+| Dispatch des sous-agents reviewers | `superpowers:dispatching-parallel-agents` (N reviewers en parallèle) |
 | Implémentation d'un fix/feature | `superpowers:test-driven-development` |
 | Review adversariale locale | `superpowers:requesting-code-review` + `superpowers:receiving-code-review` |
 | Gate « c'est fait » avant push/merge | `superpowers:verification-before-completion` |

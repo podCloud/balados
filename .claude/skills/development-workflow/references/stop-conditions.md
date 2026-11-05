@@ -17,7 +17,14 @@ demande.
 ## Goal = empty queue
 
 Le loop s'arrête (et rend un résumé) quand TOUT est vide : aucune PR à reviewer,
-aucune PR avec retours à corriger, aucune PR prête à merger, aucune issue prioritaire.
+aucune PR avec retours à corriger, aucune PR prête à merger, aucune tâche du plan
+directeur ni issue prioritaire.
+
+Deux cas sortent de la boucle sans vider la file, et se signalent à Pof dans le
+résumé :
+- la prochaine tâche du plan est un **brainstorming** (spec à écrire avec Pof) ;
+- la prochaine tâche a été bornée par Pof à une phase (« fais la phase 1 ») et la
+  phase est finie.
 
 ## Anti-stall backstop
 

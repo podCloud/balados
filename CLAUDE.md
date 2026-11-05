@@ -233,7 +233,10 @@ Test RSA keypair for local development is in `balados.sync_keys.md`.
 The shared development workflow skill lives in `.claude/skills/development-workflow/`. Trigger it with "continue le workflow".
 
 - **Review is local**: adversarial subagents run the review and post verdicts as PR comments. There is no `needs-claude-review` label and no CI review job.
-- Each submodule provides `.claude/workflow-stack.md` with its own project-specific configuration.
+- Each submodule provides `.claude/workflow-stack.md` with its own project-specific configuration (exact commands, known traps).
+- Work sources, in order: open PRs, then the next unchecked task of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md), then open issues (`follow-up`/`bug` first). Feature ideas without a spec go through `superpowers:brainstorming` with Pof first.
+- Review worktrees live in each submodule's `.worktrees/` (git-ignored) and install their own dependencies.
+- After every merge, the root `CLAUDE.md` and the master plan (file + Claude Doc) are updated before looping.
 - The interactive `@claude` workflow (`claude.yml`) in each repo remains active for ad-hoc questions.
 
 ---
@@ -296,7 +299,7 @@ See individual CLAUDE.md files for project-specific rules.
 
 ### Open Work
 
-State as of 2026-11-05 — Phase 1 of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) is complete; next is Phase 2 (git/docs hygiene), then Phase 3 (dependency upgrades):
+State as of 2026-11-05 — Phases 1 (security) and 2 (git/docs hygiene) of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) are complete; next is Phase 3 (CI safety net, then dependency upgrades), then Phase 4 (third-party app contract and PodCloud import):
 
 - ✅ balados.app [#68](https://github.com/podCloud/balados.app/issues/68) DOMPurify 3.4.17 bump + `renderShowNotes` tests (PR #69, merged 2026-11-05) — follow-up [#71](https://github.com/podCloud/balados.app/issues/71) (force `rel=noopener`)
 - ✅ balados.app [#70](https://github.com/podCloud/balados.app/issues/70) sync RSS proxy 401/403/429 surfaced instead of silent public fallback, persisted circuit breaker, transactional settings (PR #72, merged 2026-11-05) — follow-ups [#73](https://github.com/podCloud/balados.app/issues/73) auth flow/refresh token, [#74](https://github.com/podCloud/balados.app/issues/74) no-public-proxy option, [#75](https://github.com/podCloud/balados.app/issues/75) Retry-After in aggregate pages, [#76](https://github.com/podCloud/balados.app/issues/76) flaky ListeningHistory tests, [#77](https://github.com/podCloud/balados.app/issues/77) save/clear race

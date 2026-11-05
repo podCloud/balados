@@ -18,7 +18,8 @@ nettoie la branche mergée. On n'utilise jamais `--squash` (perte de granularit�
 ## Post-merge follow-ups
 
 Chaque nice-to-have non corrigé doit avoir une issue de suivi créée AVANT le
-merge. Catégorisation :
+merge. Un nice-to-have qui se corrige en quelques minutes se corrige dans la PR :
+le follow-up est pour ce qui mérite vraiment un travail séparé. Catégorisation :
 
 | Verdict de review | Action au merge | Labels de l'issue de suivi | Priorité |
 |-------------------|-----------------|----------------------------|----------|
@@ -33,6 +34,23 @@ Format de titre des issues de suivi :
 ```
 
 Exemple : `[Follow-up #64] refactor: extract useLike hook polling logic`.
+
+```bash
+~/.config/podclaude/gh.sh issue create --repo podCloud/<repo> \
+  --title "[Follow-up #<PR>] <type>: <description>" \
+  --label "follow-up,from-pr-<PR>" \
+  --body "## Context
+Follow-up from PR #<PR>.
+
+## Original finding
+> <citation du commentaire de review>
+
+## Acceptance criteria
+- [ ] …"
+```
+
+Un test qui échoue ou qui est flaky pendant la vérification (même préexistant,
+même hors du diff) donne une issue `bug` sur le dépôt concerné, avant le merge.
 
 Exception : si la PR est elle-même un follow-up, on ne crée PAS de follow-up de
 follow-up — tout est corrigé directement dans la PR avant merge. Cette exception
@@ -59,9 +77,15 @@ d'une issue devenue obsolète/doublon) — **avant** de reboucler sur DISCOVER :
    « Current Work ») pour refléter cet état réel : déplacer vers
    « Completed » ce qui est mergé/fermé, retirer les entrées obsolètes,
    corriger la liste « Open Work » avec le backlog effectivement ouvert.
-5. Commit + push directement sur `main` du superprojet — une mise à jour de
-   documentation racine est une des exceptions au « jamais de commit direct
-   sur main » (voir `balados.app/CLAUDE.md` § RÈGLES CRITIQUES).
+5. Si l'item vient du plan directeur : cocher ses étapes dans
+   `docs/superpowers/plans/<date>-plan-directeur.md`, mettre à jour la ligne
+   du tableau de suivi (statut, PR, follow-ups), ajouter la ligne
+   `Task <N>: complete (...)` au ledger `.superpowers/sdd/<plan>/progress.md`,
+   et répercuter le statut dans le Claude Doc miroir si la session y a accès.
+6. Commit + push directement sur `main` du superprojet (pointeurs de
+   submodules inclus) — une mise à jour de documentation racine est une des
+   exceptions au « jamais de commit direct sur main » (voir
+   `balados.app/CLAUDE.md` § RÈGLES CRITIQUES).
 
 Ce n'est pas une étape à faire « à un moment » dans la boucle : c'est la
 dernière chose qu'on fait pour un item avant de reboucler, à chaque fois
