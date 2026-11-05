@@ -214,10 +214,10 @@ Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, get
 
 ### Task 3.1: Backend, mineures sans risque
 
-- [ ] `mix deps.update bandit commanded eventstore ecto_sql postgrex finch floki jason joken joken_jwks phoenix_html phoenix_live_reload phoenix_pubsub swoosh telemetry_metrics stream_data wallaby ex_doc esbuild tailwind`.
-- [ ] `mix compile --warnings-as-errors` puis `mix test --exclude e2e` : ~940 tests, 0 échec.
-- [ ] `mix test --include e2e` (phoenix_html 4.4 touche le rendu) : 0 échec sur 7.
-- [ ] Commit `chore(deps): update minor backend dependencies`, PR, merge.
+- [x] `mix deps.update` de tous les candidats « Update possible » (40 entrées du lock, aucune contrainte modifiée). joken_jwks reste en 1.7 : 1.8 exige hackney 4, bloqué par httpoison 2 (débloqué en 3.3). Entrée `:mail` obsolète retirée du lock ; `elixir: "~> 1.16"` dans les quatre apps (exigé par joken 2.7, swoosh 1.29, eventstore 1.4.10 ; la suite de tests demande 1.17 via wallaby 0.31).
+- [x] `mix compile --warnings-as-errors` puis `mix test --exclude e2e` : 942 tests, 0 échec (local sur base vierge et CI).
+- [x] `mix test --include e2e` : 3/7, identique sur `main` avec les anciennes dépendances → préexistant, issue #282 (la connexion ne trouve pas le lien « Log out », assertion dépendante de la locale).
+- [x] PR #283 mergée le 5 nov. (issue #281, 2 rounds de revue) avec notes de changelog : la plage contient une quinzaine de correctifs de sécurité (bandit, plug, mint, phoenix, phoenix_html).
 
 ### Task 3.2: Backend, majeures hors Phoenix (une PR chacune)
 
@@ -375,7 +375,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 2.1 Nettoyage git | racine | | | Terminé (2026-11-05) : 7 worktrees orphelins, 4 branches locales et 1 branche distante mergées supprimés, crash dump effacé |
 | 2.2 Docs racine | racine | | | Terminé (2026-11-05) : ROADMAP, INTEGRATION_STATUS, CLAUDE.md racine, skill `development-workflow` modernisée, stacks et CLAUDE.md des sous-modules |
 | 3.0 CI tests + versions pinnées | les deux | app #78, sync #273 | app #79, sync #275 | Terminé (2026-11-05) : Node 24.22.2, Elixir 1.20.1 / OTP 28, suites vertes en CI ; suivis #80, #81, #274, #276–#278 |
-| 3.1 Backend mineures | sync | | | À faire |
+| 3.1 Backend mineures | sync | #281 | #283 | Terminé (2026-11-05) : 40 entrées du lock, Elixir ~> 1.16, 942 tests ; e2e préexistant #282 |
 | 3.2 Backend majeures hors Phoenix | sync | | | À faire |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
 | 3.4 Frontend mineures | app | | | À faire |
