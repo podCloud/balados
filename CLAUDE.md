@@ -296,11 +296,15 @@ See individual CLAUDE.md files for project-specific rules.
 
 ### Open Work
 
-No open PRs in either repo as of 2026-07-02.
+State as of 2026-11-05 — Phase 1 of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) in progress:
 
-**Frontend (balados.app):** none — the entire tracked backlog (including #62, listening history) is now shipped.
+- ✅ balados.app [#68](https://github.com/podCloud/balados.app/issues/68) DOMPurify 3.4.17 bump + `renderShowNotes` tests (PR #69, merged 2026-11-05) — follow-up [#71](https://github.com/podCloud/balados.app/issues/71) (force `rel=noopener`)
+- 🔄 balados.app [#70](https://github.com/podCloud/balados.app/issues/70) handle 401/429 from the sync RSS proxy (PR #72, in local review)
+- 🔄 balados.sync [#264](https://github.com/podCloud/balados.sync/issues/264) enforce JWT + per-user rate limit on the RSS proxy (TODOS Phase A), in progress
 
-**Backend (balados.sync):** no active work — remaining open issues are longer-horizon discovery/social features not yet scheduled: [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
+**Frontend (balados.app):** [#71](https://github.com/podCloud/balados.app/issues/71) follow-up (force `rel=noopener` on show-notes links).
+
+**Backend (balados.sync):** besides #264 above, open issues are longer-horizon discovery/social features not yet scheduled — [#262](https://github.com/podCloud/balados.sync/issues/262) community tags, [#263](https://github.com/podCloud/balados.sync/issues/263) episode reactions (both need a design spec first, see master plan Phase 4), [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
 
 See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
 
