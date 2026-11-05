@@ -148,7 +148,7 @@ JWT Bearer tokens (RS256 asymmetric). OAuth-style flow:
 | GET | `/likes` | List user's likes (paginated) | JWT |
 | POST | `/likes` | Like a podcast or episode | JWT |
 | DELETE | `/likes/{feed}` | Unlike a podcast | JWT |
-| GET | `/rss/proxy/{feed}` | CORS proxy | JWT |
+| GET | `/rss/proxy/{feed}` | CORS proxy (scope `user.sync` or `user.subscriptions.read`, 120 req/min/user, 401/403/429) | JWT |
 | POST | `/auth/refresh` | Token validation/refresh | JWT |
 | GET | `/public/trending/podcasts` | Trending | No |
 
@@ -300,11 +300,11 @@ State as of 2026-11-05 — Phase 1 of the [master plan](docs/superpowers/plans/2
 
 - ✅ balados.app [#68](https://github.com/podCloud/balados.app/issues/68) DOMPurify 3.4.17 bump + `renderShowNotes` tests (PR #69, merged 2026-11-05) — follow-up [#71](https://github.com/podCloud/balados.app/issues/71) (force `rel=noopener`)
 - 🔄 balados.app [#70](https://github.com/podCloud/balados.app/issues/70) handle 401/429 from the sync RSS proxy (PR #72, in local review)
-- 🔄 balados.sync [#264](https://github.com/podCloud/balados.sync/issues/264) enforce JWT + per-user rate limit on the RSS proxy (TODOS Phase A), in progress
+- ✅ balados.sync [#264](https://github.com/podCloud/balados.sync/issues/264) RSS proxy requires JWT (`user.sync` or `user.subscriptions.read`), 120 req/min/user, server-wide CORS plug, private cache, unpadded base64url ids (PR #265, merged 2026-11-05) — follow-ups [#267](https://github.com/podCloud/balados.sync/issues/267) last-comma episode ids, [#268](https://github.com/podCloud/balados.sync/issues/268) IP limiter/exact Retry-After, [#269](https://github.com/podCloud/balados.sync/issues/269) gettext template stale, [#270](https://github.com/podCloud/balados.sync/issues/270) CORS before the router, [#271](https://github.com/podCloud/balados.sync/issues/271) anonymous fetch via public pages (security), [#272](https://github.com/podCloud/balados.sync/issues/272) pre-commit formatter hook
 
 **Frontend (balados.app):** [#71](https://github.com/podCloud/balados.app/issues/71) follow-up (force `rel=noopener` on show-notes links).
 
-**Backend (balados.sync):** besides #264 above, open issues are longer-horizon discovery/social features not yet scheduled — [#262](https://github.com/podCloud/balados.sync/issues/262) community tags, [#263](https://github.com/podCloud/balados.sync/issues/263) episode reactions (both need a design spec first, see master plan Phase 4), [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
+**Backend (balados.sync):** besides the #265 follow-ups above and the flaky test [#266](https://github.com/podCloud/balados.sync/issues/266), open issues are longer-horizon discovery/social features not yet scheduled — [#262](https://github.com/podCloud/balados.sync/issues/262) community tags, [#263](https://github.com/podCloud/balados.sync/issues/263) episode reactions (both need a design spec first, see master plan Phase 4), [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
 
 See [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) for detailed status and [docs/ROADMAP.md](docs/ROADMAP.md) for full roadmap.
 
