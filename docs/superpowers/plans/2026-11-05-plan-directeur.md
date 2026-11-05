@@ -266,11 +266,47 @@ LiveView 0.20 → 1.2 change `live_patch`/`live_redirect` (8 occurrences), `phx-
 
 ---
 
-## Phase 4 — Brainstorming et specs produit
+## Phase 4 — Applications tierces et specs produit
 
 #262 et #263 sont des captures Discord, pas des specs. Chacune passe par `superpowers:brainstorming` avec Pof, produit un design doc, puis un plan séparé via `superpowers:writing-plans`. Ce plan fixe les questions à trancher et les livrables, pas les tâches de code.
 
-### Task 4.1: Spec des tags communautaires (#262)
+Décision du 2026-11-05 : la phase s'ouvre par le chantier des applications tierces, car PodCloud sera la première application à importer des données dans un compte Balados, ce qui exige que le contrat client soit terminé.
+
+### Task 4.0: Terminer le contrat d'application tierce
+
+Le serveur attend `/authorize?token=<JWT d'app portant métadonnées et clé publique>` et des requêtes signées RS256 par l'app ; la popup de balados.app appelle `/authorize?redirect_uri=…&response_type=token`, ne persiste aucun matériel de renouvellement, et seul le token manuel fonctionne (#73). Avant qu'une application externe puisse s'y brancher, ce contrat doit être unique, documenté et implémenté des deux côtés.
+
+**Livrables :** `balados.sync/docs/technical/AUTH_SYSTEM.md` comme contrat de référence, guide « intégrer une application tierce » dans `balados.sync/docs/api/`, balados.app conforme (#73 fermée), kit de test (clés de dev, script générant un JWT d'app valide).
+
+Questions à trancher :
+
+1. **Modèle de jeton** : jeton auto-signé par l'app (clé privée locale, `exp` court renouvelé via `POST /auth/refresh`, modèle documenté côté serveur) ou jeton émis par le serveur. Recommandation : garder le modèle serveur, faire converger l'app.
+2. **Stockage côté app** : clé privée dans IndexedDB (WebCrypto non extractible si possible), `fromSettings()` la recharge, le chemin 401 → refresh → rejeu de `proxyManager` devient effectif.
+3. **Scopes** : liste publique et stable ; scopes écriture seule utilisables par un importateur (`user.subscriptions.write`, `user.likes.write`, `user.playlists.write`, `user.plays.write`) sans `user.sync`.
+4. **Provenance** : `app_id` déjà dans les métadonnées de commande ; décider s'il est projeté (« importé depuis PodCloud », révocation propre).
+5. **Page d'autorisation** : libellés par scope, mention « cette application ne pourra rien lire » quand seuls des scopes d'écriture sont demandés.
+
+- [ ] Brainstorming avec Pof sur 1 à 3, design doc court.
+- [ ] Implémentation backend (doc, page d'autorisation, kit de test) puis frontend (#73) via le `development-workflow`.
+- [ ] Critère de sortie : une application de démonstration externe obtient une autorisation, pousse un abonnement, et un 401 sur le proxy est récupéré sans action utilisateur.
+
+### Task 4.1: Import PodCloud à sens unique
+
+PodCloud s'enregistre comme application tierce (4.0) et pousse une fois, pour un utilisateur qui l'accepte, ses abonnements, likes, playlists et positions d'écoute dans le compte Balados. Il ne lit rien et ne modifie plus son propre état : le compte PodCloud est figé pour la partie écoute, Balados reprend la main.
+
+**Livrables :** design doc côté balados.sync (ce qui manque à l'API pour un import idempotent), spec du job d'export côté PodCloud, commentaires croisés sur les issues.
+
+Questions à trancher :
+
+1. **Endpoints** : `POST /sync` en une passe avec horodatages d'origine (recommandé : profite de la résolution de conflit) ou endpoints unitaires.
+2. **Idempotence** : rejouer l'import ne duplique rien (à vérifier pour les playlists).
+3. **Positions d'écoute** : `POST /play` avec `updated_at` d'origine si PodCloud les connaît.
+4. **Rapport** : envoyés / ignorés par conflit / en erreur, affiché côté PodCloud.
+5. **Identité des flux** : conserver l'identifiant PodCloud du podcast pour suivre un flux dont l'URL change (lien avec l'OPML étendu, Phase 5).
+
+- [ ] Brainstorming, design doc, plan ; dépend de 4.0.
+
+### Task 4.2: Spec des tags communautaires (#262)
 
 **Livrables :** `balados.sync/docs/superpowers/specs/2026-MM-DD-community-tags-design.md`, puis `docs/superpowers/plans/…-community-tags.md`, commentaire sur #262.
 
@@ -289,7 +325,7 @@ Questions à trancher, dans l'ordre :
 - [ ] Plan d'implémentation : backend (agrégat, projections, API, admin) puis frontend (sync, UI).
 - [ ] Fermer #158 comme remplacée par #262, ou la garder pour les hashtags libres.
 
-### Task 4.2: Spec des réactions d'épisodes (#263)
+### Task 4.3: Spec des réactions d'épisodes (#263)
 
 **Livrables :** même trio (design doc, plan, commentaire sur #263).
 
@@ -297,14 +333,14 @@ Questions à trancher, dans l'ordre :
 2. **Set de réactions** : set par défaut (5 emojis à choisir avec Pof), set custom par flux revendiqué via `PodcastOwnershipClaim`, commande `SetFeedReactions {feed, reactions[]}` réservée au propriétaire vérifié. Sort des réactions existantes quand le set change.
 3. **Anonymat** : projections `episode_reaction_counts` (feed, item, reaction, count) et `episode_reaction_combos` (feed, item, combo_bitmask 1..31, count).
 4. **Pentagone** : calcul côté app à partir des 31 combos ; normalisation par épisode ; `GET /api/v1/public/episode/:item/reactions`.
-5. **Modération** : `HideReaction` global ou par flux, même forme que `HideTag` ; mutualiser l'admin.
+5. **Modération** : `HideReaction` global ou par flux, même forme que `HideTag` (4.2) ; mutualiser l'admin.
 6. **Sync app** : `ReactionSync {rss_source_feed, rss_source_item, reactions[], updated_at}`.
 7. **Namespace RSS** `balados:reactions` : hors périmètre, annexe du design doc.
 
-- [ ] Brainstorming, design doc, plan, comme en 4.1.
-- [ ] Faire 4.1 avant 4.2 (modération et projections publiques posées une fois).
+- [ ] Brainstorming, design doc, plan, comme en 4.2.
+- [ ] Faire 4.2 avant 4.3 (modération et projections publiques posées une fois).
 
-### Task 4.3: Exécution
+### Task 4.4: Exécution
 
 - [ ] Issues d'implémentation depuis les plans (une par tâche), étiquetées, passées dans le `development-workflow`.
 - [ ] Mettre à jour ce document : lier design docs et plans, cocher.
@@ -325,7 +361,6 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | Import OPML, recherche iTunes/PodcastIndex | app | Discovery | Aucun | `docs/ROADMAP.md` Phase 5 |
 | UI de gestion des proxies, logs de sync | app | Confort | Aucun | `docs/ROADMAP.md` Phases 1 et 4 |
 | OPML étendu import/export (position, lu, liké, playlists, date d'abonnement) | app + sync | Portabilité | Aucun | Idée Pof du 2026-11-05 ; namespace `balados:` sur les `<outline>`, mêmes règles de conflit que le sync |
-| Import PodCloud à sens unique (PodCloud = app tierce qui pousse abonnements, likes, playlists, positions) | sync + PodCloud | Portabilité | #73 (flux d'autorisation) | Idée Pof du 2026-11-05 ; scopes écriture seule, provenance `app_id`, idempotence |
 
 ---
 
@@ -344,8 +379,10 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
 | 3.4 Frontend mineures | app | | | À faire |
 | 3.5 Frontend majeures | app | | | À faire |
-| 4.1 Spec tags communautaires #262 | sync | #262 | | À faire |
-| 4.2 Spec réactions #263 | sync | #263 | | À faire |
-| 4.3 Exécution des plans 4.x | les deux | | | À faire |
+| 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
+| 4.1 Import PodCloud à sens unique | sync + PodCloud | | | À faire |
+| 4.2 Spec tags communautaires #262 | sync | #262 | | À faire |
+| 4.3 Spec réactions #263 | sync | #263 | | À faire |
+| 4.4 Exécution des plans 4.x | les deux | | | À faire |
 
 Prochaine revue de ce plan : 2026-11-19.
