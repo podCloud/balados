@@ -296,13 +296,13 @@ See individual CLAUDE.md files for project-specific rules.
 
 ### Open Work
 
-State as of 2026-11-05 — Phase 1 of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) in progress:
+State as of 2026-11-05 — Phase 1 of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) is complete; next is Phase 2 (git/docs hygiene), then Phase 3 (dependency upgrades):
 
 - ✅ balados.app [#68](https://github.com/podCloud/balados.app/issues/68) DOMPurify 3.4.17 bump + `renderShowNotes` tests (PR #69, merged 2026-11-05) — follow-up [#71](https://github.com/podCloud/balados.app/issues/71) (force `rel=noopener`)
-- 🔄 balados.app [#70](https://github.com/podCloud/balados.app/issues/70) handle 401/429 from the sync RSS proxy (PR #72, in local review)
+- ✅ balados.app [#70](https://github.com/podCloud/balados.app/issues/70) sync RSS proxy 401/403/429 surfaced instead of silent public fallback, persisted circuit breaker, transactional settings (PR #72, merged 2026-11-05) — follow-ups [#73](https://github.com/podCloud/balados.app/issues/73) auth flow/refresh token, [#74](https://github.com/podCloud/balados.app/issues/74) no-public-proxy option, [#75](https://github.com/podCloud/balados.app/issues/75) Retry-After in aggregate pages, [#76](https://github.com/podCloud/balados.app/issues/76) flaky ListeningHistory tests, [#77](https://github.com/podCloud/balados.app/issues/77) save/clear race
 - ✅ balados.sync [#264](https://github.com/podCloud/balados.sync/issues/264) RSS proxy requires JWT (`user.sync` or `user.subscriptions.read`), 120 req/min/user, server-wide CORS plug, private cache, unpadded base64url ids (PR #265, merged 2026-11-05) — follow-ups [#267](https://github.com/podCloud/balados.sync/issues/267) last-comma episode ids, [#268](https://github.com/podCloud/balados.sync/issues/268) IP limiter/exact Retry-After, [#269](https://github.com/podCloud/balados.sync/issues/269) gettext template stale, [#270](https://github.com/podCloud/balados.sync/issues/270) CORS before the router, [#271](https://github.com/podCloud/balados.sync/issues/271) anonymous fetch via public pages (security), [#272](https://github.com/podCloud/balados.sync/issues/272) pre-commit formatter hook
 
-**Frontend (balados.app):** [#71](https://github.com/podCloud/balados.app/issues/71) follow-up (force `rel=noopener` on show-notes links).
+**Frontend (balados.app):** follow-ups #71, #73–#77 listed above (#73 also covers the OAuth popup flow not matching the server's `/authorize?token=` contract).
 
 **Backend (balados.sync):** besides the #265 follow-ups above and the flaky test [#266](https://github.com/podCloud/balados.sync/issues/266), open issues are longer-horizon discovery/social features not yet scheduled — [#262](https://github.com/podCloud/balados.sync/issues/262) community tags, [#263](https://github.com/podCloud/balados.sync/issues/263) episode reactions (both need a design spec first, see master plan Phase 4), [#153](https://github.com/podCloud/balados.sync/issues/153) collaborative playlists, [#155](https://github.com/podCloud/balados.sync/issues/155) follow other users, [#158](https://github.com/podCloud/balados.sync/issues/158) hashtags/topics, [#201](https://github.com/podCloud/balados.sync/issues/201) MinHash discovery recommendations.
 

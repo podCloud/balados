@@ -324,6 +324,8 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | #201 Recommandations MinHash | sync | Discovery | Volume d'utilisateurs | Job périodique dans `balados_sync_jobs` |
 | Import OPML, recherche iTunes/PodcastIndex | app | Discovery | Aucun | `docs/ROADMAP.md` Phase 5 |
 | UI de gestion des proxies, logs de sync | app | Confort | Aucun | `docs/ROADMAP.md` Phases 1 et 4 |
+| OPML étendu import/export (position, lu, liké, playlists, date d'abonnement) | app + sync | Portabilité | Aucun | Idée Pof du 2026-11-05 ; namespace `balados:` sur les `<outline>`, mêmes règles de conflit que le sync |
+| Import PodCloud à sens unique (PodCloud = app tierce qui pousse abonnements, likes, playlists, positions) | sync + PodCloud | Portabilité | #73 (flux d'autorisation) | Idée Pof du 2026-11-05 ; scopes écriture seule, provenance `app_id`, idempotence |
 
 ---
 
@@ -332,8 +334,8 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | Tâche | Dépôt | Issue | PR | Statut |
 | --- | --- | --- | --- | --- |
 | 1.1 Bump DOMPurify | app | #68 | #69 (mergée 2026-11-05) | Terminé — suivi #71 |
-| 1.2 Proxy RSS : JWT + rate limit | sync | #264 | #265 | En revue |
-| 1.3 Gestion 401/429 du proxy | app | #70 | #72 | En revue — suivis #73, #74 |
+| 1.2 Proxy RSS : JWT + rate limit | sync | #264 | #265 (mergée 2026-11-05) | Terminé — suivis #267 à #272 |
+| 1.3 Gestion 401/429 du proxy | app | #70 | #72 (mergée 2026-11-05) | Terminé — suivis #73 à #77 |
 | 2.1 Nettoyage git | racine | | | À faire |
 | 2.2 Docs racine | racine | | | À faire |
 | 3.0 CI tests + versions pinnées | les deux | | | À faire |
