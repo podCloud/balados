@@ -181,9 +181,9 @@ Sans PR de code. Parallélisable avec la Phase 1 par un agent sur le dépôt rac
 - [ ] `git worktree remove --force <chemin>` puis `git branch -D worktree-agent-<id>` pour chacun ; `git worktree list` n'affiche plus que main.
 - [ ] balados.app : `git branch -d` sur `feature/issue-58-migrate-to-biome`, `feature/issue-60-eslint-biome-coverage-doc`, `feature/issue-62-listening-history` (si refus, `git log main..<branche>` avant tout `-D`).
 - [ ] balados.app : supprimer `origin/feature/issue-62-listening-history` (mergée par PR #67).
-- [ ] balados.sync : supprimer la branche locale `feature/likes-followups-256-257-260` (PR #261).
-- [ ] balados.sync : pour chacune des 11 branches distantes hors main, `git log origin/main..origin/<branche>` ; si vide, `git push origin --delete <branche>` ; sinon lister les commits dans une issue de suivi.
-- [ ] Supprimer `balados.sync/erl_crash.dump` (13 Mo, février 2026, gitignoré).
+- [x] balados.sync : supprimer la branche locale `feature/likes-followups-256-257-260` (PR #261).
+- [x] balados.sync : pour chacune des 11 branches distantes hors main, `git log origin/main..origin/<branche>` ; si vide, `git push origin --delete <branche>` ; sinon lister les commits dans une issue de suivi.
+- [x] Supprimer `balados.sync/erl_crash.dump` (13 Mo, février 2026, gitignoré).
 - [ ] `git branch -a` dans les deux sous-modules : main plus les seules branches non mergées.
 
 ### Task 2.2: Rafraîchir les docs racine
@@ -371,7 +371,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 1.1 Bump DOMPurify | app | #68 | #69 (mergée 2026-11-05) | Terminé — suivi #71 |
 | 1.2 Proxy RSS : JWT + rate limit | sync | #264 | #265 (mergée 2026-11-05) | Terminé — suivis #267 à #272 |
 | 1.3 Gestion 401/429 du proxy | app | #70 | #72 (mergée 2026-11-05) | Terminé — suivis #73 à #77 |
-| 2.1 Nettoyage git | racine | | | À faire |
+| 2.1 Nettoyage git | racine | | | Terminé (2026-11-05) : 7 worktrees orphelins, 4 branches locales et 1 branche distante mergées supprimés, crash dump effacé |
 | 2.2 Docs racine | racine | | | À faire |
 | 3.0 CI tests + versions pinnées | les deux | | | À faire |
 | 3.1 Backend mineures | sync | | | À faire |
