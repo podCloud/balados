@@ -60,7 +60,7 @@ Le scope `/api/v1/rss` passe par le pipeline `:rss_api` (un simple `accepts`). L
 
 **Interfaces:**
 - Consumes `BaladosSyncWeb.Plugs.JWTAuth` (`scopes_any`), `BaladosSyncWeb.Plugs.RateLimiter` (`limit`, `window_ms`, `key: :user_id`, `namespace`), `JwtTestHelper.authenticate_conn(conn, user_id, scopes: [...])`.
-- Produces : `GET /api/v1/rss/proxy/*` répond 401 sans JWT, 429 au-delà de 60 req/min/user.
+- Produces : `GET /api/v1/rss/proxy/*` répond 401 sans JWT, 403 sans scope couvrant, 429 au-delà de 120 req/min/user (décision d'exécution : 120 plutôt que 60, quota partagé entre appareils).
 
 - [ ] Issue `security: enforce JWT and per-user rate limit on RSS proxy (TODOS Phase A)` avec la section Phase A de `TODOS.md`. Claim lock, branche `feature/issue-N-rss-proxy-jwt`.
 - [ ] Vérifier dans `balados.app/src` quels scopes l'app demande à l'autorisation. Si aucun ne couvre le proxy, ajouter le scope côté app dans la tâche 1.3 avant de merger celle-ci.
@@ -331,9 +331,9 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 
 | Tâche | Dépôt | Issue | PR | Statut |
 | --- | --- | --- | --- | --- |
-| 1.1 Bump DOMPurify | app | | | À faire |
-| 1.2 Proxy RSS : JWT + rate limit | sync | | | À faire |
-| 1.3 Gestion 401/429 du proxy | app | | | À faire |
+| 1.1 Bump DOMPurify | app | #68 | #69 (mergée 2026-11-05) | Terminé — suivi #71 |
+| 1.2 Proxy RSS : JWT + rate limit | sync | #264 | #265 | En revue |
+| 1.3 Gestion 401/429 du proxy | app | #70 | #72 | En revue — suivis #73, #74 |
 | 2.1 Nettoyage git | racine | | | À faire |
 | 2.2 Docs racine | racine | | | À faire |
 | 3.0 CI tests + versions pinnées | les deux | | | À faire |
