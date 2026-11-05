@@ -177,14 +177,14 @@ Sans PR de code. Parallélisable avec la Phase 1 par un agent sur le dépôt rac
 
 ### Task 2.1: Nettoyage git
 
-- [ ] balados.app : pour chacun des 7 worktrees `worktree-agent-*` (commit 0393199), `git -C <chemin> status --short` : attendu vide.
-- [ ] `git worktree remove --force <chemin>` puis `git branch -D worktree-agent-<id>` pour chacun ; `git worktree list` n'affiche plus que main.
-- [ ] balados.app : `git branch -d` sur `feature/issue-58-migrate-to-biome`, `feature/issue-60-eslint-biome-coverage-doc`, `feature/issue-62-listening-history` (si refus, `git log main..<branche>` avant tout `-D`).
-- [ ] balados.app : supprimer `origin/feature/issue-62-listening-history` (mergée par PR #67).
+- [x] balados.app : pour chacun des 7 worktrees `worktree-agent-*` (commit 0393199), `git -C <chemin> status --short` : attendu vide.
+- [x] `git worktree remove --force <chemin>` puis `git branch -D worktree-agent-<id>` pour chacun ; `git worktree list` n'affiche plus que main.
+- [x] balados.app : `git branch -d` sur `feature/issue-58-migrate-to-biome`, `feature/issue-60-eslint-biome-coverage-doc`, `feature/issue-62-listening-history` (si refus, `git log main..<branche>` avant tout `-D`).
+- [x] balados.app : supprimer `origin/feature/issue-62-listening-history` (mergée par PR #67).
 - [x] balados.sync : supprimer la branche locale `feature/likes-followups-256-257-260` (PR #261).
 - [x] balados.sync : pour chacune des 11 branches distantes hors main, `git log origin/main..origin/<branche>` ; si vide, `git push origin --delete <branche>` ; sinon lister les commits dans une issue de suivi.
 - [x] Supprimer `balados.sync/erl_crash.dump` (13 Mo, février 2026, gitignoré).
-- [ ] `git branch -a` dans les deux sous-modules : main plus les seules branches non mergées.
+- [x] `git branch -a` dans les deux sous-modules : main plus les seules branches non mergées.
 
 ### Task 2.2: Rafraîchir les docs racine
 
