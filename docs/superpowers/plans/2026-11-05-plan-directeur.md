@@ -245,8 +245,8 @@ LiveView 0.20 → 1.2 change `live_patch`/`live_redirect` (8 occurrences), `phx-
 
 ### Task 3.4: Frontend, mineures groupées
 
-- [ ] `npm update && npm run lint && npm run build && npx vitest run` : tests verts, 0 avertissement Biome nouveau.
-- [ ] `npm run dev` : vérifier lecture d'un épisode, installation du SW, page Historique. Commit `chore(deps): update minor frontend dependencies`, PR, merge.
+- [x] `npm update` (24 paquets dans leurs plages, `package.json` inchangé ; React 19.3, Vite 7.3, Vitest 4.1, Tailwind 4.3, Dexie 4.4, TanStack Query 5.106, vite-plugin-pwa 1.3…), lint 0 nouveau, build OK, 493 tests. `npm audit` complet 27 → 6 (tout sous workbox-build, attend vite-plugin-pwa 2 en 3.5).
+- [x] Vérification navigateur par Playwright (profil vierge, SW activé sur le build preview, page Historique, abonnement et lecture d'un épisode). Elle a révélé un bug préexistant : sur profil vide, le seeding du flux par défaut ouvrait une transaction d'écriture dans un `liveQuery` et faisait planter la Bibliothèque (issue #83, corrigé + test de régression dans la même PR). PR #84 mergée le 5 nov. (issue #82, 3 rounds) ; suivi #85 (`includeAssets`, précache en double, course migration localStorage/seeding). Majeures restantes pour 3.5 : ajouter `@types/node` 26 et `react-i18next` 17 à la liste.
 
 ### Task 3.5: Frontend, majeures (une PR chacune, dans cet ordre)
 
@@ -378,7 +378,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.1 Backend mineures | sync | #281 | #283 | Terminé (2026-11-05) : 40 entrées du lock, Elixir ~> 1.16, 942 tests ; e2e préexistant #282 |
 | 3.2 Backend majeures hors Phoenix | sync | | | À faire |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
-| 3.4 Frontend mineures | app | | | À faire |
+| 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
 | 3.5 Frontend majeures | app | | | À faire |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
 | 4.1 Import PodCloud à sens unique | sync + PodCloud | | | À faire |
