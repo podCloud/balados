@@ -10,6 +10,12 @@ Une PR ne peut être mergée que si AUCUN must-fix ni should-fix n'est en suspen
 Les nice-to-have → follow-up issue (sauf si la PR est elle-même un follow-up :
 alors tout corriger, pas de follow-up de follow-up).
 
+**CI verte obligatoire** : le workflow `Tests` du dépôt doit être vert sur le
+dernier commit de la PR (`~/.config/podclaude/gh.sh pr checks <n>`). GitHub ne
+l'impose pas encore (pas de ruleset, décision dans balados.app#80) : c'est le
+mergeur qui vérifie. Un échec sans rapport avec la PR donne une issue (ou un
+commentaire sur l'issue flaky existante), jamais un merge en rouge.
+
 Merge : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch` (jamais --squash).
 
 `--merge` préserve l'historique des commits de la branche ; `--delete-branch`

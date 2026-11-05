@@ -19,7 +19,7 @@
 - Claim lock : commenter l'issue ou la PR avant de commencer.
 - Encodage des identifiants RSS : base64 URL-safe sans padding, décodage `lastIndexOf(",")` côté item.
 - Doc et code dans le même commit : `docs/`, `CLAUDE.md`, `TODOS.md` se mettent à jour avec la feature.
-- Tests verts avant chaque commit : `npm run build && npx vitest run` côté app, `mix test --exclude wallaby` côté sync.
+- Tests verts avant chaque commit : `npm run lint && npm run build && npx vitest run` côté app, `mix format --check-formatted && mix compile --warnings-as-errors && mix test --exclude e2e` côté sync (ce que la CI exécute depuis la tâche 3.0 ; les tests navigateur sont tagués `:e2e`, pas `:wallaby`).
 
 ## Review Focus
 
@@ -112,7 +112,7 @@ plug BaladosSyncWeb.Plugs.RateLimiter,
 ```
 
 - [ ] Passer les tests existants du fichier par `authenticate_conn(user_id, scopes: ["user.sync"])` dans le `setup`.
-- [ ] Fichier de test vert, puis `mix test --exclude wallaby` : 0 échec.
+- [ ] Fichier de test vert, puis `mix test --exclude e2e` : 0 échec.
 - [ ] Cocher Phase A dans `TODOS.md` ; documenter JWT requis (scopes `user.sync` ou `user.subscriptions.read`) et quota 60/min/user dans `docs/FEATURES.md` et `docs/technical/AUTH_SYSTEM.md`.
 - [ ] Commit `fix(security): require JWT and rate limit RSS proxy (Closes #N)`, PR, revue locale, merge.
 
@@ -207,16 +207,16 @@ Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, get
 
 **Files:** Create `balados.sync/.github/workflows/test.yml`, `balados.sync/.tool-versions`, `balados.app/.github/workflows/test.yml`, `balados.app/.nvmrc`.
 
-- [ ] balados.sync : `.tool-versions` avec `elixir 1.20.1-otp-28` et `erlang 28.5.0.2` (installés via asdf localement). `mix deps.get && mix compile --warnings-as-errors && mix test --exclude wallaby` : 0 échec. Si OTP 28 bloque, retomber sur `1.16.3` / `26.0.2` et noter le blocage dans l'issue.
-- [ ] balados.sync : `test.yml` sur `pull_request` et `push` main : service postgres 16, `erlef/setup-beam` lisant `.tool-versions`, cache deps/`_build`, `mix db.create`, `mix db.init`, `mix test --exclude wallaby`. Vert sur la PR.
-- [ ] balados.app : `.nvmrc` = `24` ; `test.yml` : `npm ci`, `npm run lint`, `npm run build`, `npx vitest run`. Vert sur la PR.
-- [ ] Documenter les workflows dans le `CLAUDE.md` de chaque sous-module. Une PR par dépôt.
+- [x] balados.sync : `.tool-versions` avec `elixir 1.20.1-otp-28` et `erlang 28.5.0.2`. OTP 28 n'a pas bloqué ; Elixir 1.20 a révélé 17 warnings (`--warnings-as-errors`) et 3 diffs de formateur, corrigés dans la PR sans changement de comportement (issue #273, PR #275).
+- [x] balados.sync : `test.yml` : postgres 16, `erlef/setup-beam` (`.tool-versions`, strict), cache `deps`/`_build` (restore/save séparés), `mix deps.get`, `mix format --check-formatted`, `mix compile --warnings-as-errors`, `mix db.create`, `mix db.init`, `mix test --exclude e2e`, `MIX_ENV=test` global. L'EventStore a reçu une config de test (`balados_sync_test`) : sans elle `db.init` ciblait la base dev. Vert sur la PR (942 tests).
+- [x] balados.app : `.nvmrc` et `.tool-versions` = `24.22.2`, `engines.node >= 24` ; `test.yml` : `npm ci`, `npm run lint`, `npm run build`, `npx vitest run`, les trois contrôles tournent même si l'un échoue, concurrence par commit sur `main`. `asyncUtilTimeout` 4 s / `testTimeout` 10 s pour ne pas rendre #76 bloquant. Vert sur la PR (issue #78, PR #79, 491 tests).
+- [x] Workflows documentés dans les `CLAUDE.md` (section CI, règle de merge : le check doit être vert sur le dernier commit, GitHub ne l'impose pas encore → décision ruleset dans app #80). Suivis : app #80, #81 ; sync #274 (flaky RateLimiterTest), #276 (HTTP sortant dans les tests), #277 (500 latent sur item sans enclosure), #278 (warnings des fichiers de test).
 
 ### Task 3.1: Backend, mineures sans risque
 
 - [ ] `mix deps.update bandit commanded eventstore ecto_sql postgrex finch floki jason joken joken_jwks phoenix_html phoenix_live_reload phoenix_pubsub swoosh telemetry_metrics stream_data wallaby ex_doc esbuild tailwind`.
-- [ ] `mix compile --warnings-as-errors` puis `mix test --exclude wallaby` : 890 tests, 0 échec.
-- [ ] `mix test --only wallaby` (phoenix_html 4.4 touche le rendu) : 0 échec sur 7.
+- [ ] `mix compile --warnings-as-errors` puis `mix test --exclude e2e` : ~940 tests, 0 échec.
+- [ ] `mix test --include e2e` (phoenix_html 4.4 touche le rendu) : 0 échec sur 7.
 - [ ] Commit `chore(deps): update minor backend dependencies`, PR, merge.
 
 ### Task 3.2: Backend, majeures hors Phoenix (une PR chacune)
@@ -230,7 +230,7 @@ Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, get
 | cachex | 3.6 | 4.1 | 2 fichiers (RssCache) | Options renommées (`expiration:` → `expire:`) |
 | dns_cluster | 0.1 | 0.3 | config release | Suivre la doc Phoenix 1.8 |
 
-- [ ] Pour chaque ligne : issue `chore(deps): upgrade <lib> to <version>`, branche, contrainte dans le `mix.exs` concerné, `mix deps.update <lib>`, corriger, `mix test --exclude wallaby` vert, PR.
+- [ ] Pour chaque ligne : issue `chore(deps): upgrade <lib> to <version>`, branche, contrainte dans le `mix.exs` concerné, `mix deps.update <lib>`, corriger, `mix test --exclude e2e` vert, PR.
 - [ ] Hammer : test dans `rate_limiter_test.exs` (créer si absent) : 2 requêtes avec `limit: 1` donnent 200 puis 429 avec `retry-after`.
 
 ### Task 3.3: Phoenix 1.8 et LiveView 1.x
@@ -239,7 +239,7 @@ LiveView 0.20 → 1.2 change `live_patch`/`live_redirect` (8 occurrences), `phx-
 
 - [ ] Issue `chore(deps): upgrade to Phoenix 1.8 and LiveView 1.2`, branche ; générer un projet Phoenix 1.8 vierge dans le scratchpad pour diff `core_components.ex`, `router.ex`, `endpoint.ex`, `app.js`, config esbuild/tailwind.
 - [ ] Étape 1, LiveView 1.0 seul (Phoenix 1.7 l'accepte) : `~> 1.0`, `<.link patch/navigate>` à la place de `live_patch`/`live_redirect`, `used_input?/1` à la place de `phx-feedback-for`. Tests verts, commit.
-- [ ] Étape 2, Phoenix 1.8 : `~> 1.8`, `phoenix_live_dashboard ~> 0.9`, aligner `core_components.ex` sur le diff en gardant les composants maison, layout racine (`Layouts.app` composant fonction). `mix test --exclude wallaby` et `--only wallaby` verts, commit.
+- [ ] Étape 2, Phoenix 1.8 : `~> 1.8`, `phoenix_live_dashboard ~> 0.9`, aligner `core_components.ex` sur le diff en gardant les composants maison, layout racine (`Layouts.app` composant fonction). `mix test --exclude e2e` et `--include e2e` verts, commit.
 - [ ] Étape 3, LiveView 1.2 : `~> 1.2`, changelog, `mix compile --warnings-as-errors` propre.
 - [ ] `docs/technical/ARCHITECTURE.md` (versions) et `CLAUDE.md` du sous-module. PR, revue locale (demander une revue des templates), merge.
 
@@ -374,7 +374,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 1.3 Gestion 401/429 du proxy | app | #70 | #72 (mergée 2026-11-05) | Terminé — suivis #73 à #77 |
 | 2.1 Nettoyage git | racine | | | Terminé (2026-11-05) : 7 worktrees orphelins, 4 branches locales et 1 branche distante mergées supprimés, crash dump effacé |
 | 2.2 Docs racine | racine | | | Terminé (2026-11-05) : ROADMAP, INTEGRATION_STATUS, CLAUDE.md racine, skill `development-workflow` modernisée, stacks et CLAUDE.md des sous-modules |
-| 3.0 CI tests + versions pinnées | les deux | | | À faire |
+| 3.0 CI tests + versions pinnées | les deux | app #78, sync #273 | app #79, sync #275 | Terminé (2026-11-05) : Node 24.22.2, Elixir 1.20.1 / OTP 28, suites vertes en CI ; suivis #80, #81, #274, #276–#278 |
 | 3.1 Backend mineures | sync | | | À faire |
 | 3.2 Backend majeures hors Phoenix | sync | | | À faire |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |

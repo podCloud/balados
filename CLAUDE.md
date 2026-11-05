@@ -24,7 +24,7 @@ The projects follow a Bluesky/Mastodon-like model: the app works standalone but 
 cd balados.app
 npm run dev          # Start dev server (http://localhost:5173)
 npm run build        # Type-check + build
-npm test             # Run Vitest tests
+npx vitest run       # Run Vitest tests once (npm test = watch mode)
 
 # Backend (balados.sync)
 cd balados.sync
@@ -32,7 +32,7 @@ mix deps.get         # Install dependencies
 mix db.create        # Create databases
 mix db.init          # Initialize event store + migrate
 mix phx.server       # Start server (http://localhost:4000)
-mix test             # Run tests
+mix test --exclude e2e  # Run tests (browser e2e tests need ChromeDriver: --include e2e)
 ```
 
 ### Running Both Together
@@ -236,6 +236,7 @@ The shared development workflow skill lives in `.claude/skills/development-workf
 - Each submodule provides `.claude/workflow-stack.md` with its own project-specific configuration (exact commands, known traps).
 - Work sources, in order: open PRs, then the next unchecked task of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md), then open issues (`follow-up`/`bug` first). Feature ideas without a spec go through `superpowers:brainstorming` with Pof first.
 - Review worktrees live in each submodule's `.worktrees/` (git-ignored) and install their own dependencies.
+- Merge gate includes CI: `~/.config/podclaude/gh.sh pr checks <n>` must show the `Tests` job green on the PR's head commit (not enforced by GitHub yet, see app #80).
 - After every merge, the root `CLAUDE.md` and the master plan (file + Claude Doc) are updated before looping.
 - The interactive `@claude` workflow (`claude.yml`) in each repo remains active for ad-hoc questions.
 
@@ -299,10 +300,12 @@ See individual CLAUDE.md files for project-specific rules.
 
 ### Open Work
 
-State as of 2026-11-05 — Phases 1 (security) and 2 (git/docs hygiene) of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) are complete; next is Phase 3 (CI safety net, then dependency upgrades), then Phase 4 (third-party app contract and PodCloud import):
+State as of 2026-11-05 — Phases 1 (security) and 2 (git/docs hygiene) of the [master plan](docs/superpowers/plans/2026-11-05-plan-directeur.md) are complete and Phase 3 has started: task 3.0 (CI safety net in both repos) is merged; next are the dependency upgrades (3.1 to 3.5), then Phase 4 (third-party app contract and PodCloud import). Both repos now run their suite on every PR; a PR merges only with the `Tests` check green on its head commit:
 
 - ✅ balados.app [#68](https://github.com/podCloud/balados.app/issues/68) DOMPurify 3.4.17 bump + `renderShowNotes` tests (PR #69, merged 2026-11-05) — follow-up [#71](https://github.com/podCloud/balados.app/issues/71) (force `rel=noopener`)
 - ✅ balados.app [#70](https://github.com/podCloud/balados.app/issues/70) sync RSS proxy 401/403/429 surfaced instead of silent public fallback, persisted circuit breaker, transactional settings (PR #72, merged 2026-11-05) — follow-ups [#73](https://github.com/podCloud/balados.app/issues/73) auth flow/refresh token, [#74](https://github.com/podCloud/balados.app/issues/74) no-public-proxy option, [#75](https://github.com/podCloud/balados.app/issues/75) Retry-After in aggregate pages, [#76](https://github.com/podCloud/balados.app/issues/76) flaky ListeningHistory tests, [#77](https://github.com/podCloud/balados.app/issues/77) save/clear race
+- ✅ balados.app [#78](https://github.com/podCloud/balados.app/issues/78) CI: lint, build, Vitest on every PR, Node 24.22.2 pinned (PR #79, merged 2026-11-05) — follow-ups [#80](https://github.com/podCloud/balados.app/issues/80) ruleset decision on `main`, [#81](https://github.com/podCloud/balados.app/issues/81) npm allowScripts for esbuild
+- ✅ balados.sync [#273](https://github.com/podCloud/balados.sync/issues/273) CI: format, compile `--warnings-as-errors`, full suite on postgres 16, Elixir 1.20.1 / OTP 28 pinned (PR #275, merged 2026-11-05) — follow-ups [#274](https://github.com/podCloud/balados.sync/issues/274) flaky RateLimiterTest, [#276](https://github.com/podCloud/balados.sync/issues/276) live HTTP in tests, [#277](https://github.com/podCloud/balados.sync/issues/277) feed page item without enclosure, [#278](https://github.com/podCloud/balados.sync/issues/278) test-file warnings
 - ✅ balados.sync [#264](https://github.com/podCloud/balados.sync/issues/264) RSS proxy requires JWT (`user.sync` or `user.subscriptions.read`), 120 req/min/user, server-wide CORS plug, private cache, unpadded base64url ids (PR #265, merged 2026-11-05) — follow-ups [#267](https://github.com/podCloud/balados.sync/issues/267) last-comma episode ids, [#268](https://github.com/podCloud/balados.sync/issues/268) IP limiter/exact Retry-After, [#269](https://github.com/podCloud/balados.sync/issues/269) gettext template stale, [#270](https://github.com/podCloud/balados.sync/issues/270) CORS before the router, [#271](https://github.com/podCloud/balados.sync/issues/271) rate limit anonymous fetches on public pages (fetching itself is by design), [#272](https://github.com/podCloud/balados.sync/issues/272) pre-commit formatter hook
 
 **Frontend (balados.app):** follow-ups #71, #73–#77 listed above (#73 also covers the OAuth popup flow not matching the server's `/authorize?token=` contract).
