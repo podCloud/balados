@@ -275,6 +275,7 @@ Terminée le 2026-11-06 (PR sync #303, issue #302, 3 tours de revue). Phoenix 1.
 - [x] Vitest 5 + coverage-v8 5 : PR app #95, issue #94, mergée le 2026-11-06, aucun changement de test. Suivi #96 (couverture limitée aux fichiers importés).
 - [x] i18next 26 + react-i18next 17 : PR app #98, issue #97, mergée le 2026-11-06 (3 tours). Aucune rupture applicable ; la revue a ajouté le premier test d'intégration i18n réel (tous les tests de composants stubbent react-i18next). Suivis #99, #100, #101 ; trouvé en passant #102.
 - [x] lucide-react 1.70 : PR app #104, issue #103, mergée le 2026-11-06 (2 tours). Imports passés sur les noms canoniques 1.x ; lucide a redessiné l'icône Podcast (micro), Pof a choisi de garder le logo classique (`PodcastIcon` local, tracé de 0.562, licence ISC).
+- [x] marked 18 : PR app #106, issue #105, mergée le 2026-11-06. Aucune différence visible sur 1 380 notes réelles, 81 payloads XSS assainis à l'identique. Suivi #107.
 - [ ] Pour chaque ligne : issue, branche, `npm install <lib>@<majeure>`, `npm run lint && npm run build && npx vitest run` vert, vérification navigateur quand indiqué, PR, merge.
 - [ ] Après la dernière : `npm outdated` ne liste plus que des mineures ; `npm audit --omit=dev` à 0 ; section Stack du `CLAUDE.md` du sous-module à jour.
 
@@ -392,7 +393,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #294, #296, #298 | Terminé |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 | Terminé (2026-11-06) : Phoenix 1.8.16, LiveView 1.2.13 ; suivis #304, #306 ; #305 |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
-| 3.5 Frontend majeures | app | #86, #91, #94, #97, #103 | #88 (Vite 8), #92 (vite-plugin-pwa 2), #95 (Vitest 5), #98 (i18next 26), #104 (lucide 1.x) mergées ; suite : marked 18 | En cours |
+| 3.5 Frontend majeures | app | #86, #91, #94, #97, #103, #105 | #88 (Vite 8), #92 (vite-plugin-pwa 2), #95 (Vitest 5), #98 (i18next 26), #104 (lucide 1.x), #106 (marked 18) mergées ; suite : jsdom/jest-dom, puis TypeScript 7 | En cours |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
 | 4.1 Import PodCloud à sens unique | sync + PodCloud | | | À faire |
 | 4.2 Spec tags communautaires #262 | sync | #262 | | À faire |
