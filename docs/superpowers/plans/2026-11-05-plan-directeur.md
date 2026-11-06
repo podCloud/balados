@@ -278,8 +278,11 @@ Terminée le 2026-11-06 (PR sync #303, issue #302, 3 tours de revue). Phoenix 1.
 - [x] marked 18 : PR app #106, issue #105, mergée le 2026-11-06. Aucune différence visible sur 1 380 notes réelles, 81 payloads XSS assainis à l'identique. Suivi #107.
 - [x] jsdom 31 + jest-dom 7 : PR app #114, issue #113, mergée le 2026-11-06 ; `@testing-library/dom` déclaré, `engines.node >= 24.15`. Trouvé en passant #115.
 - [x] Hors plan, à la demande de Pof : pochettes (`itunes:image` jamais lu, repli, cache hors ligne), PR app #109, issue #108 ; suivis #110, #111, #112.
-- [ ] Pour chaque ligne : issue, branche, `npm install <lib>@<majeure>`, `npm run lint && npm run build && npx vitest run` vert, vérification navigateur quand indiqué, PR, merge.
-- [ ] Après la dernière : `npm outdated` ne liste plus que des mineures ; `npm audit --omit=dev` à 0 ; section Stack du `CLAUDE.md` du sous-module à jour.
+- [x] TypeScript 7.0.2 (compilateur Go) : PR app #117, issue #116, mergée le 2026-11-06, épinglé `~7.0.2`, aucun changement de code ; mêmes fichiers et mêmes diagnostics que la 5.9, vérification des types 4,1 s → 0,7 s ; `vitest.config.ts` désormais vérifié ; plus de tsserver ni d'API JS du compilateur (noté dans le `CLAUDE.md` du sous-module).
+- [x] Pour chaque ligne : issue, branche, `npm install <lib>@<majeure>`, `npm run lint && npm run build && npx vitest run` vert, vérification navigateur quand indiqué, PR, merge.
+- [x] Après la dernière : `npm audit --omit=dev` à 0 ; section Stack du `CLAUDE.md` du sous-module à jour ; `npm outdated` ne liste plus que Biome 2.6 (mineure, pour la prochaine passe de mineures) et **`@types/node` 26, exception volontaire** : les types restent en 24 pour correspondre au runtime épinglé (Node 24.22.2, `.nvmrc`) ; à revoir avec le passage à Node 26.
+
+**Tâche 3.5 terminée le 2026-11-06** (PR app #88, #92, #95, #98, #104, #106, #114, #117). **Phase 3 terminée.**
 
 ---
 
@@ -395,7 +398,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #294, #296, #298 | Terminé |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 | Terminé (2026-11-06) : Phoenix 1.8.16, LiveView 1.2.13 ; suivis #304, #306 ; #305 |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
-| 3.5 Frontend majeures | app | #86, #91, #94, #97, #103, #105, #113 | #88 (Vite 8), #92 (vite-plugin-pwa 2), #95 (Vitest 5), #98 (i18next 26), #104 (lucide 1.x), #106 (marked 18), #114 (jsdom 31) mergées ; reste : TypeScript 7 | En cours |
+| 3.5 Frontend majeures | app | #86, #91, #94, #97, #103, #105, #113, #116 | #88, #92, #95, #98, #104, #106, #114, #117 | Terminé (2026-11-06) : exception `@types/node` 24 (runtime Node 24) |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
 | 4.1 Import PodCloud à sens unique | sync + PodCloud | | | À faire |
 | 4.2 Spec tags communautaires #262 | sync | #262 | | À faire |
