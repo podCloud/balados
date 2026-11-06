@@ -230,8 +230,12 @@ Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, get
 | cachex | 3.6 | 4.1 | 2 fichiers (RssCache) | Options renommées (`expiration:` → `expire:`) |
 | dns_cluster | 0.1 | 0.3 | config release | Suivre la doc Phoenix 1.8 |
 
-- [ ] Pour chaque ligne : issue `chore(deps): upgrade <lib> to <version>`, branche, contrainte dans le `mix.exs` concerné, `mix deps.update <lib>`, corriger, `mix test --exclude e2e` vert, PR.
-- [ ] Hammer : test dans `rate_limiter_test.exs` (créer si absent) : 2 requêtes avec `limit: 1` donnent 200 puis 429 avec `retry-after`.
+- [x] Hammer 7 : PR #289 (issue #286), module `BaladosSyncWeb.RateLimit`, `Retry-After` exact, limiteur démarré avant l'endpoint, quota `auth_refresh` 100/h réellement appliqué ; test `limit: 1` → 200 puis 429 ajouté ; flaky #266 corrigé.
+- [x] timex : supprimé (PR #287, issue #285), `BaladosSyncWeb.Rfc1123` natif. La revue de CI a trouvé un vrai bug : sans tzdata, Quantum sortait les trois tâches planifiées du planning (`timezone: "UTC"`) → `:utc` + `SchedulerConfigTest`. Suivis #290, #295.
+- [x] cachex 4 : PR #291 (issue #288). Sans migration, `ttl:` et `limit:` étaient ignorés en silence (plus d'expiration ni de borne) ; `expire:` + hook `Cachex.Limit.Scheduled`, test de configuration.
+- [x] gettext 1.0 : PR #296 (issue #284), aucune rupture, débloqué par le retrait de timex. Issue #299 ouverte en marge (locale des LiveView).
+- [ ] dns_cluster 0.3 : PR #294 (issue #293) en revue ; corrige aussi une clé de config qui empêchait `DNS_CLUSTER_QUERY` d'être lue.
+- [ ] httpoison : remplacé par Req (PR #298, issue #292) en revue. Trouvaille de sécurité : les redirections n'étaient pas revalidées (SSRF), et le validateur laissait passer `0.0.0.0`, `[::ffff:169.254.169.254]`, `localhost.`… ; tout est corrigé dans la PR. Suivis #297 (résolution DNS), #300 (taille de corps, délai global). joken_jwks 1.8 n'est plus bloqué que par le lock (Wallaby garde httpoison 2).
 
 ### Task 3.3: Phoenix 1.8 et LiveView 1.x
 
@@ -376,7 +380,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 2.2 Docs racine | racine | | | Terminé (2026-11-05) : ROADMAP, INTEGRATION_STATUS, CLAUDE.md racine, skill `development-workflow` modernisée, stacks et CLAUDE.md des sous-modules |
 | 3.0 CI tests + versions pinnées | les deux | app #78, sync #273 | app #79, sync #275 | Terminé (2026-11-05) : Node 24.22.2, Elixir 1.20.1 / OTP 28, suites vertes en CI ; suivis #80, #81, #274, #276–#278 |
 | 3.1 Backend mineures | sync | #281 | #283 | Terminé (2026-11-05) : 40 entrées du lock, Elixir ~> 1.16, 942 tests ; e2e préexistant #282 |
-| 3.2 Backend majeures hors Phoenix | sync | | | À faire |
+| 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #296 mergées ; #294, #298 en revue | En cours |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
 | 3.5 Frontend majeures | app | | | À faire |
