@@ -243,11 +243,13 @@ Cinq majeures bloquées côté backend (Phoenix 1.8, LiveView 1.2, Hammer 7, get
 
 LiveView 0.20 → 1.2 change `live_patch`/`live_redirect` (8 occurrences), `phx-feedback-for`, `core_components` et les formulaires. 5 LiveViews concernées, plus les 37 tests LiveView déjà cassés une fois (#246).
 
-- [ ] Issue `chore(deps): upgrade to Phoenix 1.8 and LiveView 1.2`, branche ; générer un projet Phoenix 1.8 vierge dans le scratchpad pour diff `core_components.ex`, `router.ex`, `endpoint.ex`, `app.js`, config esbuild/tailwind.
-- [ ] Étape 1, LiveView 1.0 seul (Phoenix 1.7 l'accepte) : `~> 1.0`, `<.link patch/navigate>` à la place de `live_patch`/`live_redirect`, `used_input?/1` à la place de `phx-feedback-for`. Tests verts, commit.
-- [ ] Étape 2, Phoenix 1.8 : `~> 1.8`, `phoenix_live_dashboard ~> 0.9`, aligner `core_components.ex` sur le diff en gardant les composants maison, layout racine (`Layouts.app` composant fonction). `mix test --exclude e2e` et `--include e2e` verts, commit.
-- [ ] Étape 3, LiveView 1.2 : `~> 1.2`, changelog, `mix compile --warnings-as-errors` propre.
-- [ ] `docs/technical/ARCHITECTURE.md` (versions) et `CLAUDE.md` du sous-module. PR, revue locale (demander une revue des templates), merge.
+- [x] Issue `chore(deps): upgrade to Phoenix 1.8 and LiveView 1.2`, branche ; générer un projet Phoenix 1.8 vierge dans le scratchpad pour diff `core_components.ex`, `router.ex`, `endpoint.ex`, `app.js`, config esbuild/tailwind.
+- [x] Étape 1, LiveView 1.0 seul (Phoenix 1.7 l'accepte) : `~> 1.0`, `<.link patch/navigate>` à la place de `live_patch`/`live_redirect`, `used_input?/1` à la place de `phx-feedback-for`. Tests verts, commit.
+- [x] Étape 2, Phoenix 1.8 : `~> 1.8`, `phoenix_live_dashboard ~> 0.9`, aligner `core_components.ex` sur le diff en gardant les composants maison, layout racine (`Layouts.app` composant fonction). `mix test --exclude e2e` et `--include e2e` verts, commit.
+- [x] Étape 3, LiveView 1.2 : `~> 1.2`, changelog, `mix compile --warnings-as-errors` propre.
+- [x] `docs/technical/ARCHITECTURE.md` (versions) et `CLAUDE.md` du sous-module. PR, revue locale (demander une revue des templates), merge.
+
+Terminée le 2026-11-06 (PR sync #303, issue #302, 3 tours de revue). Phoenix 1.8.16, LiveView 1.2.13, LiveDashboard 0.9.1, floki remplacé par lazy_html. Écarts au plan : plus aucun `live_patch`/`live_redirect` à migrer ; les layouts explicites et le `core_components` daisyUI du générateur 1.8 ne sont pas adoptés (optionnels, toucheraient toutes les pages) ; e2e à parité avec main (3/7, #282). La revue a trouvé une régression introduite par la montée : l'`id` exigé sur le formulaire de filtres activait la restauration de formulaire, qui ramenait en page 1 après reconnexion (`phx-auto-recover="ignore"`). Suivis #304, #306 ; trouvé en passant #305.
 
 ### Task 3.4: Frontend, mineures groupées
 
@@ -383,7 +385,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.0 CI tests + versions pinnées | les deux | app #78, sync #273 | app #79, sync #275 | Terminé (2026-11-05) : Node 24.22.2, Elixir 1.20.1 / OTP 28, suites vertes en CI ; suivis #80, #81, #274, #276–#278 |
 | 3.1 Backend mineures | sync | #281 | #283 | Terminé (2026-11-05) : 40 entrées du lock, Elixir ~> 1.16, 942 tests ; e2e préexistant #282 |
 | 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #294, #296, #298 | Terminé |
-| 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 en revue | En cours |
+| 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 | Terminé (2026-11-06) : Phoenix 1.8.16, LiveView 1.2.13 ; suivis #304, #306 ; #305 |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
 | 3.5 Frontend majeures | app | | | À faire |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
