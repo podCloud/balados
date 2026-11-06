@@ -383,7 +383,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.0 CI tests + versions pinnées | les deux | app #78, sync #273 | app #79, sync #275 | Terminé (2026-11-05) : Node 24.22.2, Elixir 1.20.1 / OTP 28, suites vertes en CI ; suivis #80, #81, #274, #276–#278 |
 | 3.1 Backend mineures | sync | #281 | #283 | Terminé (2026-11-05) : 40 entrées du lock, Elixir ~> 1.16, 942 tests ; e2e préexistant #282 |
 | 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #294, #296, #298 | Terminé |
-| 3.3 Phoenix 1.8 + LiveView 1.x | sync | | | À faire |
+| 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 en revue | En cours |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
 | 3.5 Frontend majeures | app | | | À faire |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
