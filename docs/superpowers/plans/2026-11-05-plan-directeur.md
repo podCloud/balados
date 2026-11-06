@@ -271,6 +271,7 @@ Terminée le 2026-11-06 (PR sync #303, issue #302, 3 tours de revue). Phoenix 1.
 | typescript | 5.9 | 7.0 | En dernier, seul : compilateur Go, `tsc -b` et `verbatimModuleSyntax` à revalider ; si Biome ou Vite ne suivent pas, rester en 5.9 et noter la date de réessai |
 
 - [x] Vite 8 + @vitejs/plugin-react 6 (regroupés : plugin-react 6 exige Vite 8) : PR app #88, issue #86, mergée le 2026-11-06. Nouvelle cible navigateur par défaut (Safari 16.4). Avertissement `inlineDynamicImports` de vite-plugin-pwa 1.3 sous Rolldown, à revérifier avec la majeure 2. Trouvés en vérifiant : #87 (proxys publics hors service), #89, #90.
+- [x] vite-plugin-pwa 2 : PR app #92, issue #91, mergée le 2026-11-06. Code publié identique à la 1.3 (seul le plancher Node 20.19 change). La revue navigateur a montré que `autoUpdate` ne fait rien en `injectManifest` (pas de `skipWaiting`/`clientsClaim`), préexistant : #93.
 - [ ] Pour chaque ligne : issue, branche, `npm install <lib>@<majeure>`, `npm run lint && npm run build && npx vitest run` vert, vérification navigateur quand indiqué, PR, merge.
 - [ ] Après la dernière : `npm outdated` ne liste plus que des mineures ; `npm audit --omit=dev` à 0 ; section Stack du `CLAUDE.md` du sous-module à jour.
 
@@ -388,7 +389,7 @@ Rien d'engagé. Repris un par un par un brainstorming dédié après les Phases 
 | 3.2 Backend majeures hors Phoenix | sync | #284, #285, #286, #288, #292, #293 | #287, #289, #291, #294, #296, #298 | Terminé |
 | 3.3 Phoenix 1.8 + LiveView 1.x | sync | #302 | #303 | Terminé (2026-11-06) : Phoenix 1.8.16, LiveView 1.2.13 ; suivis #304, #306 ; #305 |
 | 3.4 Frontend mineures | app | #82, #83 | #84 | Terminé (2026-11-05) : 24 paquets, bug #83 trouvé par Playwright et corrigé ; suivi #85 |
-| 3.5 Frontend majeures | app | #86 | #88 mergée (Vite 8 + plugin-react 6) ; suite : vite-plugin-pwa 2 | En cours |
+| 3.5 Frontend majeures | app | #86, #91 | #88 (Vite 8 + plugin-react 6), #92 (vite-plugin-pwa 2) mergées ; suite : Vitest 5 | En cours |
 | 4.0 Contrat d'application tierce | les deux | #73 | | À faire |
 | 4.1 Import PodCloud à sens unique | sync + PodCloud | | | À faire |
 | 4.2 Spec tags communautaires #262 | sync | #262 | | À faire |
